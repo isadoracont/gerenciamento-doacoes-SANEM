@@ -30,3 +30,27 @@ O nome da sua branch deve indicar o **tipo** da tarefa, o **número da issue** a
 _Leitura recomendada:_ [Entendendo o GitHub Flow](https://docs.github.com/pt/get-started/using-github/github-flow)
 
 ---
+
+## 💬 2. Padrões de Commits
+
+Nós utilizamos o padrão **[Conventional Commits](https://www.conventionalcommits.org/pt-br/v1.0.0/)**. Isso significa que toda mensagem de commit deve seguir uma estrutura específica.
+
+**Formato:** `tipo: descrição breve em letras minúsculas`
+
+### Tipos permitidos:
+
+- `feat:` Uma nova funcionalidade ou recurso.
+- `fix:` Correção de um bug.
+- `docs:` Alterações apenas na documentação (README, diagrams, etc).
+- `style:` Alterações de formatação (espaços, ponto e vírgula, etc) que não afetam o código.
+- `refactor:` Uma mudança no código que não corrige um bug nem adiciona uma feature (ex: renomear variáveis, simplificar lógica).
+- `test:` Adição ou correção de testes.
+- `chore:` Atualizações de tarefas de build, configurações ou pacotes.
+
+### Boas Práticas de Commits:
+
+1. **Faça commits pequenos e frequentes:** Não crie um único commit com 50 arquivos alterados. Comite cada alteração lógica separadamente.
+2. **Seja descritivo:** "fix: corrige erro no botão de salvar" é muito melhor que "arrumando coisas".
+3. **Use o imperativo:** Escreva "adiciona funcionalidade X" ao invés de "adicionei funcionalidade X".
+
+---
