@@ -54,3 +54,20 @@ Nós utilizamos o padrão **[Conventional Commits](https://www.conventionalcommi
 3. **Use o imperativo:** Escreva "adiciona funcionalidade X" ao invés de "adicionei funcionalidade X".
 
 ---
+
+## 🔀 3. Fluxo de Pull Requests (PR)
+
+Como a `main` é bloqueada, todo código novo deve entrar no projeto através de um Pull Request.
+
+### Passo a passo para o PR:
+
+1. Faça o `push` da sua branch para o GitHub: `git push origin nome-da-sua-branch`.
+2. Acesse a aba **Pull Requests** no GitHub e clique em "New Pull Request".
+3. Preencha o título (seguindo o Conventional Commits) e a descrição explicando o que foi feito.
+4. **Referencie a Issue:** Na descrição do PR, escreva `Resolves #NumeroDaIssue` (ex: `Resolves #3`). Isso fará com que o GitHub feche a issue automaticamente quando o PR for aprovado.
+5. **Revisão:** Todo PR precisa de pelo menos **1 aprovação (Approve)** de outro membro da equipe.
+6. **Merge:** Após a aprovação e garantir que não há conflitos, o autor do PR (ou o revisor) pode clicar em "Merge pull request" para integrar o código à `main`.
+
+⚠️ **Regra de Ouro:** NUNCA aprove o seu próprio Pull Request! Peça para um colega revisar.
+
+_Leitura recomendada:_ [Como criar um Pull Request no GitHub](https://docs.github.com/pt/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request)
