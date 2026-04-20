@@ -1,0 +1,38 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: javalovers-backend
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${DB_NAME:sanem}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        # Forçar atualização do metamodel
+        hbm2ddl:
+          auto: none
+        # Limpar cache de segunda instância (se houver)
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    com.javalovers: DEBUG
+    org.springframework.security: DEBUG

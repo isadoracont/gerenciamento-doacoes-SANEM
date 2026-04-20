@@ -1,0 +1,184 @@
+.containerGeral {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin-left: 220px;
+  width: calc(100% - 220px);
+  box-sizing: border-box;
+}
+
+.contentWrapper {
+  flex: 1;
+  width: 100%;
+  padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 56px;
+  box-sizing: border-box;
+}
+
+.listContainer {
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.titulo {
+  text-align: left;
+  font-size: 2rem;
+  color: var(--color-text);
+  margin-bottom: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-bottom: 10px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+}
+
+.decoracao {
+  width: 80px;
+  height: 6px;
+  background: var(--color-primary);
+  margin: 0 0 30px 0;
+  border-radius: 3px;
+}
+
+.configSection {
+  background: var(--color-bg-alt);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--color-border-light);
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 12px 0;
+}
+
+.sectionDescription {
+  color: var(--color-text-light);
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.formGroup input[type="number"],
+.formGroup input[type="text"] {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+}
+
+.formGroup input[type="number"]:focus,
+.formGroup input[type="text"]:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.08);
+}
+
+.formGroup small {
+  display: block;
+  color: var(--color-text-light);
+  font-size: 0.85rem;
+  margin-top: 6px;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.checkboxGroup input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.checkboxGroup label {
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  margin: 0;
+}
+
+.submitButton {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: var(--color-primary-dark);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 40px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+
+@media (max-width: 768px) {
+  .containerGeral {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .contentWrapper {
+    padding: 15px;
+  }
+  
+  .titulo {
+    font-size: 1.8rem;
+  }
+  
+  .configSection {
+    padding: 24px;
+  }
+}
+

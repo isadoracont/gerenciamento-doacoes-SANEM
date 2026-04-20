@@ -1,0 +1,2 @@
+ALTER TABLE card ADD COLUMN issue_date TIMESTAMP(6);
+

@@ -1,0 +1,73 @@
+.menuBar {
+  width: calc(100% - 220px);
+  left: 220px;
+  height: 56px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-shadow: 0 1px 0 #ececec;
+  position: fixed;
+  top: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-right: 32px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  color: #444;
+  cursor: pointer;
+}
+
+.userName {
+  font-weight: 500;
+  color: #444;
+}
+
+.arrowDown {
+  font-size: 0.8rem;
+  color: #b0b4be;
+  margin-left: 2px;
+}
+
+.iconWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.iconWrapper:hover {
+  opacity: 0.7;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #ff4d4f;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.notifiSign {
+  position: absolute;
+  top: -2px;
+  right: 0px;
+  z-index: 2;
+} 

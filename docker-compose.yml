@@ -1,0 +1,53 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: javalovers-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sanem
+      MYSQL_USER: sanem
+      MYSQL_PASSWORD: sanem123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/script-create-tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql
+      - ./db/script-insert-values.sql:/docker-entrypoint-initdb.d/02-insert-values.sql
+    networks:
+      - javalovers-network
+
+  backend:
+    build: ./backend
+    container_name: javalovers-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/sanem?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: sanem
+      SPRING_DATASOURCE_PASSWORD: sanem123
+    depends_on:
+      - mysql
+    networks:
+      - javalovers-network
+
+  frontend:
+    build: ./frontend
+    container_name: javalovers-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://backend:8080/api
+    depends_on:
+      - backend
+    networks:
+      - javalovers-network
+
+volumes:
+  mysql_data:
+
+networks:
+  javalovers-network:
+    driver: bridge

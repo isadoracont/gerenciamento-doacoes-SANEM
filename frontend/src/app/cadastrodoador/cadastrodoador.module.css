@@ -1,0 +1,137 @@
+/* Todos os estilos agora usam variáveis globais e visual minimalista */
+.formWrapper {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.formContainer {
+  background: var(--color-bg-alt);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(25, 118, 210, 0.08);
+  padding: 48px 48px 32px 48px;
+  max-width: 900px;
+  width: 98vw;
+  margin: 40px auto;
+  border: 1.5px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.titulo {
+  text-align: center;
+  font-size: 2.3rem;
+  color: #18132b;
+  margin-bottom: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.decoracao {
+  width: 70px;
+  height: 5px;
+  background: #18132b;
+  margin: 0 auto 24px auto;
+  border-radius: 2px;
+}
+
+.separador {
+  width: 100%;
+  height: 2px;
+  background: #18132b;
+  border: none;
+  margin: 32px 0 18px 0;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 32px;
+  width: 100%;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.formGroupFullWidth {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  grid-column: 1 / -1;
+}
+
+.formulario label {
+  margin-bottom: 2px;
+  font-size: 1.08rem;
+  color: #18132b;
+  font-weight: 600;
+}
+
+.formulario input {
+  margin-bottom: 0;
+  padding: 14px 16px;
+  font-size: 1.08rem;
+  color: #18132b;
+  border: 1.5px solid #18132b;
+}
+
+.formulario input:focus {
+  border: 1.5px solid #18132b;
+}
+
+.formulario button {
+  grid-column: 1 / -1;
+  margin: 32px auto 0 auto;
+  font-size: 1.2rem;
+  padding: 18px 0;
+  width: 60%;
+  display: block;
+  background: #18132b;
+  color: #fff;
+}
+
+.errorMessage {
+  color: #c0392b;
+  margin-top: 16px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Estilo para input com erro */
+.inputError {
+  border-color: #c0392b !important;
+  border-width: 2px !important;
+}
+
+/* Mensagem de erro por campo */
+.fieldError {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .formContainer {
+    padding: 18px 2vw;
+    max-width: 99vw;
+  }
+  .formulario {
+    grid-template-columns: 1fr;
+    gap: 14px 0;
+  }
+  .formulario button {
+    width: 100%;
+    margin-top: 18px;
+  }
+} 

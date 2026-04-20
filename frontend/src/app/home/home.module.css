@@ -1,0 +1,92 @@
+.container {
+  min-height: 100vh;
+  background: #f5f6fa;
+  margin-left: 220px; /* largura do Navigation */
+}
+
+.main {
+  padding-top: 56px; /* altura do MenuBar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 56px);
+  width: 100%;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 16px;
+  color: #444;
+}
+
+.description {
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.donationImage {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  max-width: 100%;
+  height: auto;
+  width: auto;
+}
+
+.effectPhrase {
+  font-size: 1.3rem;
+  color: #1976d2;
+  font-weight: 600;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.helpButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.2);
+  padding: 16px 32px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: box-shadow 0.2s, background 0.2s, transform 0.2s;
+  margin-top: 24px;
+}
+
+.helpButton:hover {
+  background: var(--color-primary-dark);
+  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.3);
+  transform: translateY(-2px);
+}
+
+.helpButton svg {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 480px) {
+  .main {
+    padding-top: 56px;
+  }
+  .donationImage {
+    width: 100%;
+    height: auto;
+    max-width: 280px;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .effectPhrase {
+    font-size: 1.1rem;
+    padding: 0 20px;
+  }
+  .helpButton {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+}
