@@ -16,6 +16,7 @@ CREATE TABLE profile (
      profile_id INT AUTO_INCREMENT PRIMARY KEY,
      name VARCHAR(100) NOT NULL,
      description VARCHAR(255),
+     deleted_at TIMESTAMP(6) NULL,
 
      UNIQUE KEY uq_profile_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -28,6 +29,7 @@ CREATE TABLE app_user (
      password_hash VARCHAR(255) NOT NULL,
      status ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
      profile_id INT NOT NULL,
+     deleted_at TIMESTAMP(6) NULL,
 
      CONSTRAINT fk_app_user_profile FOREIGN KEY (profile_id) REFERENCES profile(profile_id)
           ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -46,6 +48,7 @@ CREATE TABLE beneficiary (
      approver_user_id INT,
      withdrawal_limit INT DEFAULT NULL,
      current_withdrawals_this_month INT DEFAULT 0,
+     deleted_at TIMESTAMP(6) NULL,
 
      CONSTRAINT fk_beneficiary_approver FOREIGN KEY (approver_user_id) REFERENCES app_user(user_id)
          ON UPDATE RESTRICT ON DELETE SET NULL,
@@ -57,6 +60,7 @@ CREATE TABLE card (
      unique_number VARCHAR(64) NOT NULL,
      beneficiary_id INT NOT NULL,
      issue_date TIMESTAMP(6) NULL,
+     deleted_at TIMESTAMP(6) NULL,
 
      CONSTRAINT fk_card_beneficiary FOREIGN KEY (beneficiary_id) REFERENCES beneficiary(beneficiary_id)
           ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -67,6 +71,7 @@ CREATE TABLE card (
 CREATE TABLE category (
      category_id INT AUTO_INCREMENT PRIMARY KEY,
      name VARCHAR(100) NOT NULL,
+     deleted_at TIMESTAMP(6) NULL,
 
      UNIQUE KEY uq_category_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -76,6 +81,7 @@ CREATE TABLE item (
     description VARCHAR(200) NOT NULL,
     stock_quantity INT NOT NULL DEFAULT 0,
     tag_code VARCHAR(64),
+    deleted_at TIMESTAMP(6) NULL,
 
     UNIQUE KEY uq_item_code (tag_code),
     CHECK (stock_quantity >= 0)
@@ -86,6 +92,7 @@ CREATE TABLE donor (
     name VARCHAR(160) NOT NULL,
     cpf_cnpj VARCHAR(20),
     contact VARCHAR(160),
+    deleted_at TIMESTAMP(6) NULL,
 
     UNIQUE KEY uq_donor_cpfcnpj (cpf_cnpj)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -95,6 +102,8 @@ CREATE TABLE donation (
     donation_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     receiver_user_id INT NOT NULL,
     donor_id INT,
+    deleted_at TIMESTAMP(6) NULL,
+
     CONSTRAINT fk_donation_receiver_user FOREIGN KEY (receiver_user_id) REFERENCES app_user(user_id)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
     CONSTRAINT fk_donation_donor FOREIGN KEY (donor_id) REFERENCES donor(donor_id)
@@ -106,6 +115,7 @@ CREATE TABLE withdrawal (
     withdrawal_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     beneficiary_id INT NOT NULL,
     attendant_user_id INT NOT NULL,
+    deleted_at TIMESTAMP(6) NULL,
 
     CONSTRAINT fk_withdrawal_beneficiary FOREIGN KEY (beneficiary_id) REFERENCES beneficiary(beneficiary_id)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -122,6 +132,7 @@ CREATE TABLE item_donated (
     donation_id INT NOT NULL,
     item_id INT NOT NULL,
     quantity INT NOT NULL,
+    deleted_at TIMESTAMP(6) NULL,
 
     CONSTRAINT fk_item_donated_donation FOREIGN KEY (donation_id) REFERENCES donation(donation_id)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -136,6 +147,7 @@ CREATE TABLE item_withdrawn (
     withdrawal_id INT NOT NULL,
     item_id INT NOT NULL,
     quantity INT NOT NULL,
+    deleted_at TIMESTAMP(6) NULL,
 
     CONSTRAINT fk_item_withdrawn_withdrawal FOREIGN KEY (withdrawal_id) REFERENCES withdrawal(withdrawal_id)
         ON UPDATE RESTRICT ON DELETE RESTRICT,
@@ -143,4 +155,19 @@ CREATE TABLE item_withdrawn (
         ON UPDATE RESTRICT ON DELETE RESTRICT,
     UNIQUE KEY uk_item_withdrawn (withdrawal_id, item_id),
     CHECK (quantity > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================================
+-- TABELA DE CONFIGURAÇÃO
+-- =====================================================================
+
+CREATE TABLE withdrawal_limit_config (
+    config_id INT AUTO_INCREMENT PRIMARY KEY,
+    monthly_item_limit INT NOT NULL DEFAULT 10,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP(6) NULL,
+    
+    CONSTRAINT chk_monthly_limit_positive CHECK (monthly_item_limit > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

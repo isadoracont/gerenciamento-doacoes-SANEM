@@ -43,10 +43,10 @@ INSERT INTO category (name) VALUES
 -- ========================
 -- ITEM
 -- ========================
-INSERT INTO item (description, stock_quantity, tag_code, category_id) VALUES
-                                                                          ('Rice 5kg', 50, 'ETQ-RICE-01', 1),
-                                                                          ('T-shirt M', 30, 'ETQ-TSHIRT-01', 2),
-                                                                          ('Soap 90g', 100, 'ETQ-SOAP-01', 3);
+INSERT INTO item (description, stock_quantity, tag_code) VALUES
+                                                            ('Rice 5kg', 50, 'ETQ-RICE-01'),
+                                                            ('T-shirt M', 30, 'ETQ-TSHIRT-01'),
+                                                            ('Soap 90g', 100, 'ETQ-SOAP-01');
 
 -- ========================
 -- DONOR
@@ -87,3 +87,8 @@ INSERT INTO item_withdrawn (withdrawal_id, item_id, quantity) VALUES
                                                                   (1, 1, 2), -- Maria withdraws 2 rice bags
                                                                   (2, 2, 1), -- José withdraws 1 t-shirt
                                                                   (3, 3, 3); -- Clara withdraws 3 soaps
+
+-- ========================
+-- WITHDRAWAL_LIMIT_CONFIG
+-- ========================
+INSERT INTO withdrawal_limit_config (monthly_item_limit, is_active) VALUES (10, TRUE);
