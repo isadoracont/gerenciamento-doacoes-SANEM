@@ -1,0 +1,500 @@
+/* src/app/listabeneficiarios/listabeneficiarios.module.css */
+
+/*
+  Este arquivo CSS Modules deve conter apenas classes que serão usadas
+  especificamente neste componente. As variáveis :root, html, body, input,
+  button, label, etc., DEVEM estar no seu arquivo CSS GLOBAL (ex: globals.css).
+*/
+
+/* Container Geral da Página - Reutiliza do CSS do formulário, mas adapta se necessário */
+.containerGeral {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px; /* Espaço para a sidebar fixa */
+    width: calc(100% - 250px);
+    box-sizing: border-box;
+  }
+  
+  /* Wrapper para o conteúdo da lista (ocupa toda a largura disponível) */
+  .contentWrapper {
+    flex: 1;
+    width: 100%;
+    padding: 20px 30px; /* Padding interno */
+    display: flex;
+    flex-direction: column;
+    margin-top: 56px; /* Espaço para o MenuBar fixo */
+    box-sizing: border-box;
+  }
+  
+  /* Contêiner da Lista em si - sem quadro branco, preenche o fundo */
+  .listContainer {
+    background: transparent; /* Transparente para usar o fundo do body */
+    padding: 0; /* Remove padding que cria o quadro */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  /* Título da Página - Reutiliza estilos do global ou de cadastro */
+.titulo {
+  text-align: left; /* Alinha à esquerda */
+  font-size: 2rem; /* Fonte um pouco menor */
+  color: var(--color-text); /* Usa a variável global */
+  margin-bottom: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-bottom: 10px;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+}
+  
+  .decoracao {
+    width: 80px; /* Linha de decoração mais larga */
+    height: 6px; /* Linha de decoração mais grossa */
+    background: var(--color-primary); /* Usa a variável global */
+    margin: 0 0 30px 0; /* Alinha à esquerda */
+    border-radius: 3px;
+  }
+  
+  /* Header com botões de ação e mensagens */
+  .actionsHeader {
+    display: flex;
+    justify-content: flex-end; /* Alinha botão à direita */
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+    gap: 15px; /* Espaçamento entre os itens */
+  }
+  
+  .addButton {
+    /* Estilo base do button já vem do global, sobrescrevendo só o que for específico */
+    background: var(--color-primary);
+    color: #fff;
+    padding: 12px; /* Ajustado para um botão circular/quadrado */
+    font-size: 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px 0 rgba(25, 118, 210, 0.2); /* Usa rgba para consistência */
+    transition: background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0; /* Não permite que o botão encolha */
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Remove outras propriedades que já estão em button global, como border e cursor */
+  }
+  
+  .addButton:hover {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+  }
+  
+  /* Estilos para Tabela */
+  .tableWrapper {
+    overflow-x: auto; /* Permite rolagem horizontal em telas pequenas */
+    width: 100%;
+  }
+  
+  .beneficiariosTable {
+    width: 100%;
+    border-collapse: separate; /* Permite border-spacing */
+    border-spacing: 0 10px; /* Espaço entre as linhas da tabela */
+  }
+  
+.beneficiariosTable th,
+.beneficiariosTable td {
+  text-align: left;
+  padding: 15px 20px;
+  font-size: 0.95rem;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow: visible;
+}
+  
+  .beneficiariosTable th {
+    background-color: var(--color-primary); /* Cabeçalho com cor primária */
+    color: #fff;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    position: sticky; /* Fixa o cabeçalho se a tabela rolar */
+    top: 0;
+    z-index: 1; /* Garante que fique acima do conteúdo da tabela */
+  }
+  
+  /* Borda arredondada no cabeçalho */
+  .beneficiariosTable th:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  .beneficiariosTable th:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  
+  .beneficiariosTable tbody tr {
+    background-color: var(--color-bg-alt); /* Fundo branco para as linhas */
+    transition: background-color 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Sombra sutil para linhas */
+    border-radius: 8px; /* Arredonda as linhas */
+  }
+  
+  .beneficiariosTable tbody tr:hover {
+    background-color: #f0f4f8; /* Levemente mais escuro no hover */
+  }
+  
+  /* Estilos para as células (td) */
+  .beneficiariosTable td {
+    color: var(--color-text-light); /* Texto mais suave nas células */
+    border-top: none; /* Remove borda superior para evitar linhas duplas */
+    vertical-align: middle; /* Alinhamento vertical */
+  }
+  
+  /* Borda arredondada nas células da primeira/última coluna da linha */
+  .beneficiariosTable tbody tr td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+  }
+  .beneficiariosTable tbody tr td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+  }
+  
+  
+  /* Botões de Ação dentro da Tabela */
+  .actionButtons {
+    display: flex;
+    gap: 8px; /* Espaço entre Editar e Excluir */
+    justify-content: flex-end; /* Alinha botões à direita */
+    flex-wrap: wrap; /* Para quebrar linha se necessário em mobile */
+    width: 100%;
+  }
+  
+  .editButton, .deleteButton, .approveButton, .rejectButton {
+    padding: 8px 15px; /* Padding menor para botões da tabela */
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.2s ease;
+    box-shadow: none; /* Remove sombra para botões menores */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    /* Propriedades como border, cursor já vêm do global button */
+  }
+  
+  .editButton {
+    background: var(--color-primary); /* Azul da paleta principal */
+    color: #fff;
+  }
+  .editButton:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+    transform: translateY(-1px);
+  }
+  
+  .deleteButton {
+    background: var(--color-error); /* Vermelho para excluir */
+    color: #fff;
+  }
+  .deleteButton:hover:not(:disabled) {
+    background: var(--color-error); /* Ajuste se quiser um tom mais escuro de vermelho no hover */
+    filter: brightness(0.9); /* Escurece um pouco */
+    transform: translateY(-1px);
+  }
+
+  .approveButton {
+    background: #4caf50; /* Verde para aprovar */
+    color: #fff;
+  }
+  .approveButton:hover:not(:disabled) {
+    background: #45a049;
+    transform: translateY(-1px);
+  }
+
+  .rejectButton {
+    background: #f44336; /* Vermelho para reprovar */
+    color: #fff;
+  }
+  .rejectButton:hover:not(:disabled) {
+    background: #da190b;
+    transform: translateY(-1px);
+  }
+  
+  .editButton:disabled, .deleteButton:disabled, .addButton:disabled, .approveButton:disabled, .rejectButton:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  /* Mensagens de estado */
+  .loadingMessage, .errorMessage, .noDataMessage {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-light);
+    background-color: var(--color-bg-alt);
+    border-radius: 8px;
+    margin-top: 20px; /* Para separar do header de ações */
+    border: 1px solid var(--color-border-light);
+    width: 100%; /* Ocupa a largura total */
+  }
+  .errorMessage {
+    color: var(--color-error);
+    background-color: rgba(192, 57, 43, 0.1); /* Usando a cor error com transparência */
+    border-color: var(--color-error);
+  }
+  .loadingMessage {
+    color: var(--color-primary);
+    background-color: rgba(25, 118, 210, 0.05);
+    border-color: rgba(25, 118, 210, 0.2);
+  }
+  .noDataMessage {
+    /* Estilo padrão já deve ser bom, mas pode personalizar */
+    border-color: var(--color-border);
+  }
+  
+  /* Responsividade para telas menores */
+  @media (max-width: 768px) {
+    .listContainer {
+      padding: 20px; /* Reduz padding em telas menores */
+    }
+    .titulo {
+      font-size: 2rem;
+    }
+    .actionsHeader {
+      flex-direction: column; /* Empilha o botão de adicionar e mensagens */
+      align-items: stretch;
+      gap: 10px;
+    }
+    .addButton {
+      width: 100%; /* Botão de adicionar ocupa a largura total */
+    }
+  
+    /* Transformação da tabela para "cartões" em telas pequenas */
+    .beneficiariosTable {
+      border-spacing: 0; /* Remove espaçamento entre linhas quando vira cartão */
+    }
+    .beneficiariosTable thead {
+      display: none; /* Esconde o cabeçalho da tabela */
+    }
+    .beneficiariosTable, .beneficiariosTable tbody, .beneficiariosTable tr, .beneficiariosTable td {
+      display: block; /* Faz com que todos sejam blocos para empilhar */
+      width: 100%;
+    }
+    .beneficiariosTable tr {
+      margin-bottom: 15px; /* Espaço entre os "cartões" de cada beneficiário */
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 15px; /* Padding interno para cada "cartão" */
+      background-color: var(--color-bg-alt); /* Garante fundo branco para o cartão */
+    }
+    .beneficiariosTable td {
+      text-align: right; /* Alinha o valor à direita */
+      padding: 8px 10px;
+      border: none; /* Remove bordas internas */
+      position: relative;
+      padding-left: 50%; /* Espaço para o label falso */
+      min-height: 35px; /* Altura mínima para cada campo */
+      display: flex; /* Para alinhar label e valor */
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .beneficiariosTable td::before {
+      content: attr(data-label); /* Usa o atributo data-label como "cabeçalho" */
+      position: absolute;
+      left: 10px;
+      width: calc(50% - 20px);
+      text-align: left;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    /* Estilos específicos para os labels simulados */
+    .beneficiariosTable td:nth-of-type(1)::before { content: "Nome:"; }
+    .beneficiariosTable td:nth-of-type(2)::before { content: "Email:"; }
+    .beneficiariosTable td:nth-of-type(3)::before { content: "Telefone:"; }
+    /* .beneficiariosTable td:nth-of-type(4)::before { content: "CPF:"; } */ /* Descomente se mostrar CPF */
+    .beneficiariosTable td:nth-of-type(4)::before { content: "NIF:"; } /* Ajuste a ordem se mostrar CPF */
+    .beneficiariosTable td:nth-of-type(5)::before { content: "Ações:"; } /* Ajuste a ordem se mostrar CPF */
+  
+    .actionButtons {
+      justify-content: flex-end; /* Alinha botões à direita no "cartão" */
+      margin-top: 10px; /* Espaço após os dados */
+      width: 100%; /* Ocupa largura total na célula do cartão */
+    }
+    .editButton, .deleteButton {
+      flex-grow: 1; /* Faz os botões crescerem para preencher o espaço */
+      padding: 10px 15px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .listContainer {
+      padding: 15px;
+    }
+    .titulo {
+      font-size: 1.8rem;
+    }
+  }
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  background: var(--color-bg-alt);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid var(--color-border-light);
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalContent h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 24px 0;
+}
+
+.modalContent form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.formGroup input,
+.formGroup select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.inputError {
+  border-color: var(--color-error) !important;
+}
+
+.errorText {
+  display: block;
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.cancelButton {
+  padding: 12px 24px;
+  border: 1.5px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover {
+  background: var(--color-bg);
+  border-color: var(--color-border-light);
+}
+
+.submitButton {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: var(--color-primary-dark);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

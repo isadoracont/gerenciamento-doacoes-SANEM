@@ -1,0 +1,180 @@
+/* src/app/cadastrobeneficiario/cadastrobeneficiario.module.css */
+
+/* Container Geral da Página */
+.containerGeral {
+  min-height: 100vh;
+  /* background: var(--color-bg); removido, já no body global */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centraliza horizontalmente o conteúdo principal */
+  justify-content: flex-start;
+  padding-bottom: 40px; /* Espaço para o final da página */
+}
+
+/* Wrapper para o formulário (centraliza e controla a largura máxima) */
+.formWrapper {
+  flex-grow: 1; /* Permite que o wrapper ocupe o espaço restante */
+  width: 100%;
+  max-width: 1000px; /* Largura máxima um pouco maior para o formulário */
+  padding: 20px; /* Padding nas laterais em telas maiores */
+  display: flex;
+  justify-content: center; /* Centraliza o formContainer dentro do wrapper */
+  align-items: flex-start; /* Alinha o conteúdo ao topo */
+}
+
+/* Contêiner do Formulário em si */
+.formContainer {
+  background: var(--color-bg-alt); /* Usa a variável global */
+  border-radius: 18px;
+  box-shadow: 0 4px 30px 0 rgba(0, 0, 0, 0.08); /* Sombra mais suave */
+  padding: 40px 60px; /* Padding interno aumentado */
+  width: 100%; /* Ocupa toda a largura do formWrapper */
+  border: 1px solid var(--color-border-light); /* Usa a variável global */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Título da Página */
+.titulo {
+  text-align: center;
+  font-size: 2.5rem; /* Fonte maior */
+  color: var(--color-text); /* Usa a variável global */
+  margin-bottom: 12px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  position: relative; /* Para a decoração */
+  padding-bottom: 10px; /* Espaço para a linha abaixo */
+}
+
+.decoracao {
+  width: 80px; /* Linha de decoração mais larga */
+  height: 6px; /* Linha de decoração mais grossa */
+  background: var(--color-primary); /* Usa a variável global (azul primário) */
+  margin: 0 auto 30px auto; /* Centraliza e adiciona margem inferior */
+  border-radius: 3px;
+}
+
+/* Separador dentro do formulário */
+.separador {
+  width: 100%;
+  height: 1px; /* Linha mais fina */
+  background: var(--color-border-light); /* Usa a variável global */
+  border: none;
+  margin: 30px 0; /* Margem para separar os grupos de campos */
+  grid-column: 1 / -1; /* Ocupa a largura total no grid */
+}
+
+/* Formulário Principal com Grid */
+.formulario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Colunas responsivas */
+  gap: 25px 35px; /* Espaçamento entre campos */
+  width: 100%;
+}
+
+/* Grupos de Campo (label + input) */
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos de input e label serão herdados do global.
+   Sobrescrevendo apenas se houver uma necessidade específica local.
+   Por exemplo, se quiser um margin-bottom diferente para a label *neste* formulário:
+*/
+/* .formGroup label {
+  margin-bottom: 8px;
+} */
+
+
+/* Campos que devem ocupar a largura total em uma linha (para o Grid) */
+.formGroupFullWidth {
+  grid-column: 1 / -1; /* Faz com que ocupe todas as colunas disponíveis */
+  display: flex;
+  flex-direction: column;
+}
+
+
+/* Botão de Envio */
+.formulario button {
+  grid-column: 1 / -1; /* Ocupa a largura total da grade */
+  margin: 40px auto 0 auto; /* Centraliza horizontalmente e adiciona margem superior */
+  font-size: 1.3rem; /* Fonte maior para o botão */
+  font-weight: 700;
+  padding: 16px 40px; /* Padding generoso */
+  width: 50%; /* Largura do botão */
+  max-width: 350px; /* Largura máxima para o botão */
+  /* background, color, border, border-radius, cursor, transition, box-shadow vêm do global */
+  /* Remove as propriedades duplicadas que já estão no global.
+     Se quiser um background diferente, pode sobrescrever aqui.
+     Exemplo: background: var(--color-primary); */
+}
+
+.formulario button:hover:not(:disabled) {
+  /* background: var(--color-primary-dark); vindo do global, não precisa sobrescrever a menos que queira um hover diferente */
+  transform: translateY(-2px); /* Efeito de elevação */
+}
+
+.formulario button:disabled {
+  background-color: #cccccc; /* Manter este aqui se quiser um cinza específico para disabled */
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Mensagem de Erro */
+.errorMessage {
+  grid-column: 1 / -1;
+  color: var(--color-error); /* Usa a variável global */
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--color-error); /* Usa a variável global */
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+/* Estilo para input com erro */
+.inputError {
+  border-color: var(--color-error) !important;
+  border-width: 2px !important;
+}
+
+/* Mensagem de erro por campo */
+.fieldError {
+  color: var(--color-error);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 768px) {
+  .formContainer {
+    padding: 30px 30px; /* Reduz padding em telas menores */
+  }
+  .formulario {
+    grid-template-columns: 1fr; /* Uma coluna em telas muito pequenas */
+    gap: 20px 0;
+  }
+  .formGroupFullWidth {
+    grid-column: 1; /* Garante que ocupe a única coluna */
+  }
+  .formulario button {
+    width: 80%; /* Botão mais largo em mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .titulo {
+    font-size: 2rem;
+  }
+  .formContainer {
+    padding: 20px 15px;
+  }
+  .formulario button {
+    width: 95%; /* Quase largura total */
+    padding: 14px 20px;
+  }
+}
