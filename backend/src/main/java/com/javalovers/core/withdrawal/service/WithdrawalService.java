@@ -15,6 +15,7 @@ import com.javalovers.core.withdrawal.repository.WithdrawalRepository;
 import com.javalovers.core.withdrawal.specification.WithdrawalSpecification;
 import com.javalovers.core.withdrawallimit.service.WithdrawalLimitConfigService;
 import com.javalovers.core.beneficiary.service.BeneficiaryService;
+import com.javalovers.core.beneficiarystatus.BeneficiaryStatus;
 import com.javalovers.core.item.service.ItemService;
 import com.javalovers.core.item.domain.entity.Item;
 import com.javalovers.core.itemwithdrawn.domain.entity.ItemWithdrawn;
@@ -52,6 +53,8 @@ public class WithdrawalService {
 
     @Transactional
     public void save (Withdrawal withdrawal, WithdrawalFormDTO withdrawalFormDTO) {
+        validateBeneficiaryStatus(withdrawal);
+
         // Validar limite antes de processar itens
         if (withdrawalFormDTO != null && withdrawalFormDTO.items() != null && !withdrawalFormDTO.items().isEmpty()) {
             validateWithdrawalLimit(withdrawal, withdrawalFormDTO.items());
@@ -73,7 +76,9 @@ public class WithdrawalService {
 
     @Transactional
     public void save (Withdrawal withdrawal) {
+        validateBeneficiaryStatus(withdrawal);
         validateWithdrawalLimit(withdrawal);
+
         withdrawalRepository.save(withdrawal);
         
         // Atualizar contador de retiradas do beneficiário (sem DTO, calcula do withdrawal salvo)
@@ -102,6 +107,18 @@ public class WithdrawalService {
             itemWithdrawn.setItem(item);
             itemWithdrawn.setQuantity(itemDTO.quantity());
             itemWithdrawnRepository.save(itemWithdrawn);
+        }
+    }
+
+    private void validateBeneficiaryStatus(Withdrawal withdrawal) {
+        if (withdrawal.getBeneficiary() == null) {
+            return;
+        }
+
+        BeneficiaryStatus status = withdrawal.getBeneficiary().getBeneficiaryStatus();
+
+        if (status != BeneficiaryStatus.APPROVED) {
+            throw new IllegalStateException("Beneficiário não está aprovado para realizar retirada.");
         }
     }
 
