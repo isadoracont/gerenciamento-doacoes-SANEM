@@ -7,13 +7,11 @@ class ApiService {
     this.baseURL = API_CONFIG.BASE_URL;
   }
 
-  // Método genérico para fazer requisições
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
     
-    // Obter token de autenticação
     const token = authService.getToken();
-    const authHeader = token ? { Authorization: token } : {};
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
     
     const config = {
       headers: {
@@ -32,7 +30,6 @@ class ApiService {
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-      // Se a resposta for vazia (204 No Content), retorna null
       if (response.status === 204) {
         return null;
       }
@@ -41,7 +38,6 @@ class ApiService {
     } catch (error) {
       console.error(`API Error [${endpoint}]:`, error);
       
-      // Melhorar mensagem de erro para "Failed to fetch"
       if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
         const errorMessage = `Não foi possível conectar ao servidor. Verifique se o backend está rodando em ${this.baseURL}`;
         console.error(errorMessage);
@@ -52,7 +48,6 @@ class ApiService {
     }
   }
 
-  // Métodos para Doadores
   async getDonors(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/donor/all${queryParams ? `?${queryParams}` : ''}`;
@@ -83,7 +78,6 @@ class ApiService {
     });
   }
 
-  // Métodos para Itens (Estoque)
   async getItems(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/item/all${queryParams ? `?${queryParams}` : ''}`;
@@ -118,7 +112,6 @@ class ApiService {
     return this.request(`/item/${id}/label`);
   }
 
-  // Métodos para Usuários
   async getUsers() {
     return this.request('/user/all');
   }
@@ -147,7 +140,6 @@ class ApiService {
     });
   }
 
-  // Métodos para Categorias
   async getCategories(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/category/all${queryParams ? `?${queryParams}` : ''}`;
@@ -178,7 +170,6 @@ class ApiService {
     });
   }
 
-  // Métodos para Perfis
   async getProfiles(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/profile/all${queryParams ? `?${queryParams}` : ''}`;
@@ -209,7 +200,6 @@ class ApiService {
     });
   }
 
-  // Métodos para Cartões
   async getCards(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/card/all${queryParams ? `?${queryParams}` : ''}`;
@@ -248,7 +238,7 @@ class ApiService {
   async generateCardForBeneficiary(beneficiaryId) {
     const url = `${this.baseURL}/card/generate/${beneficiaryId}`;
     const token = authService.getToken();
-    const authHeader = token ? { Authorization: token } : {};
+    const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
     
     const response = await fetch(url, {
       method: 'POST',
@@ -263,10 +253,8 @@ class ApiService {
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
-    // Obter o blob do PDF
     const blob = await response.blob();
     
-    // Criar URL do blob e fazer download
     const blobUrl = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = blobUrl;
@@ -279,7 +267,6 @@ class ApiService {
     return { success: true };
   }
 
-  // Métodos para Beneficiários
   async getBeneficiaries(filters = {}) {
     const queryParams = new URLSearchParams(filters).toString();
     const endpoint = `/beneficiary/all${queryParams ? `?${queryParams}` : ''}`;
@@ -320,7 +307,6 @@ class ApiService {
     });
   }
 
-  // Métodos para Configuração de Limites de Retirada
   async getWithdrawalLimitConfig() {
     return this.request('/withdrawal-limit-config/active');
   }
@@ -364,6 +350,5 @@ class ApiService {
   }
 }
 
-// Instância singleton do serviço
 const apiService = new ApiService();
 export default apiService;

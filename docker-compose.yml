@@ -14,6 +14,12 @@ services:
       - mysql_data:/var/lib/mysql
       - ./db/script-create-tables.sql:/docker-entrypoint-initdb.d/01-create-tables.sql
       - ./db/script-insert-values.sql:/docker-entrypoint-initdb.d/02-insert-values.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "sanem", "--password=sanem123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
     networks:
       - javalovers-network
 
@@ -28,7 +34,8 @@ services:
       SPRING_DATASOURCE_USERNAME: sanem
       SPRING_DATASOURCE_PASSWORD: sanem123
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - javalovers-network
 
@@ -51,3 +58,4 @@ volumes:
 networks:
   javalovers-network:
     driver: bridge
+    
