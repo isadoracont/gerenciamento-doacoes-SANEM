@@ -106,8 +106,17 @@ const EditarUsuario = () => {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = "Email inválido";
     if (!formData.login.trim()) errors.login = "Login é obrigatório";
     if (changePassword) {
-      if (!formData.senha.trim()) errors.senha = "Senha é obrigatória";
-      else if (formData.senha.length < 6) errors.senha = "Senha deve ter pelo menos 6 caracteres";
+      if (!formData.senha.trim()) {
+        errors.senha = "Senha é obrigatória";
+      } else {
+        const passwordRegex =
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+        if (!passwordRegex.test(formData.senha)) {
+          errors.senha =
+            "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
+        }
+      }
     }
     if (!formData.perfilId) errors.perfilId = "Perfil é obrigatório";
     return errors;
@@ -263,7 +272,7 @@ const EditarUsuario = () => {
                     value={formData.senha}
                     onChange={handleChange}
                     className={formErrors.senha ? styles.inputError : ''}
-                    placeholder="Nova senha (mínimo 6 caracteres)"
+                    placeholder="Nova senha (mín. 8 caracteres, maiúscula, minúscula, número e caractere especial)"
                     style={{ marginTop: '8px' }}
                   />
                   {formErrors.senha && <span className={styles.errorText}>{formErrors.senha}</span>}
