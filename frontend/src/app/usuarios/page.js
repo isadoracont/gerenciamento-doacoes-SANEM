@@ -110,6 +110,9 @@ export default function UsuariosPage() {
     if (nameLower.includes('attendant') || nameLower.includes('atendente')) {
       return 'Atendente';
     }
+    if (nameLower.includes('evaluator') || nameLower.includes('avaliador')) {
+      return 'Avaliador';
+    }
     return name; // Retorna o nome original se não for reconhecido
   };
 
@@ -120,7 +123,8 @@ export default function UsuariosPage() {
       const filteredProfiles = (data || []).filter(profile => {
         const nameLower = (profile.name || '').toLowerCase();
         return nameLower.includes('admin') || nameLower.includes('administrator') || 
-               nameLower.includes('attendant') || nameLower.includes('atendente');
+               nameLower.includes('attendant') || nameLower.includes('atendente') ||
+               nameLower.includes('evaluator') || nameLower.includes('avaliador');
       });
       setProfiles(filteredProfiles);
     } catch (err) {
