@@ -17,40 +17,70 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final CharacterEncodingFilter characterEncodingFilter;
+    private final JwtFilter jwtFilter;
 
-    public SecurityConfig(CharacterEncodingFilter characterEncodingFilter) {
+    public SecurityConfig(
+            CharacterEncodingFilter characterEncodingFilter,
+            JwtFilter jwtFilter
+    ) {
         this.characterEncodingFilter = characterEncodingFilter;
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .addFilterBefore(characterEncodingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(
+                        characterEncodingFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(
+                        jwtFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll());
+                        .requestMatchers("/auth/**").permitAll()
+                        .anyRequest().authenticated());
 
         return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration configuration = new CorsConfiguration();
-        // Permitir todas as origens usando padrão (funciona com allowCredentials)
+
         configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        // Incluir todos os métodos HTTP necessários, incluindo PATCH
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
-        // Permitir todos os headers
+
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE",
+                "PATCH",
+                "OPTIONS",
+                "HEAD"
+        ));
+
         configuration.setAllowedHeaders(Arrays.asList("*"));
-        // Permitir credenciais (cookies, authorization headers, etc)
+
         configuration.setAllowCredentials(true);
-        // Expor headers customizados
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Total-Count"));
-        // Cache da configuração de preflight por 1 hora
+
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Total-Count"
+        ));
+
         configuration.setMaxAge(3600L);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
 

@@ -207,7 +207,7 @@ export default function UsuariosPage() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = "Email inválido";
     if (!formData.login.trim()) errors.login = "Login é obrigatório";
     if (!formData.senha.trim()) errors.senha = "Senha é obrigatória";
-    else if (formData.senha.length < 6) errors.senha = "Senha deve ter pelo menos 6 caracteres";
+    else if (formData.senha.length < 8) errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
     if (!formData.perfilId) errors.perfilId = "Perfil é obrigatório";
     return errors;
   };
@@ -220,7 +220,7 @@ export default function UsuariosPage() {
     if (!editFormData.login.trim()) errors.login = "Login é obrigatório";
     if (changePassword) {
       if (!editFormData.senha.trim()) errors.senha = "Senha é obrigatória";
-      else if (editFormData.senha.length < 6) errors.senha = "Senha deve ter pelo menos 6 caracteres";
+      else if (editFormData.senha.length < 8) errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
     }
     if (!editFormData.perfilId) errors.perfilId = "Perfil é obrigatório";
     return errors;
@@ -556,7 +556,7 @@ export default function UsuariosPage() {
                       value={editFormData.senha}
                       onChange={(e) => setEditFormData({ ...editFormData, senha: e.target.value })}
                       className={editFormErrors.senha ? styles.inputError : ''}
-                      placeholder="Nova senha (mínimo 6 caracteres)"
+                      placeholder="Nova senha (mín. 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial)"
                       style={{ marginTop: '8px', width: '100%', padding: '12px', border: '2px solid var(--color-border)', borderRadius: '8px', boxSizing: 'border-box' }}
                     />
                     {editFormErrors.senha && <span className={styles.errorText}>{editFormErrors.senha}</span>}

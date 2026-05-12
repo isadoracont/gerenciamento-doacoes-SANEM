@@ -19,23 +19,22 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<?> login(@RequestBody @Valid LoginRequestDTO loginRequest) {
-    try {
-      LoginResponseDTO response = authService.authenticate(loginRequest);
-      return ResponseEntity.ok(response);
-    } catch (Exception e) {
-      System.err.println("Erro no login: " + e.getMessage());
-      e.printStackTrace();
-      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-    }
+      try {
+          LoginResponseDTO response = authService.authenticate(loginRequest);
+          return ResponseEntity.ok(response);
+      } catch (Exception e) {
+          return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+      }
   }
 
   @PostMapping("/validate")
   public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String token) {
-    try {
-      boolean isValid = authService.validateToken(token);
-      return ResponseEntity.ok(isValid);
-    } catch (Exception e) {
-      return ResponseEntity.ok(false);
-    }
+      try {
+          String rawToken = token.startsWith("Bearer ") ? token.substring(7) : token;
+          boolean isValid = authService.validateToken(rawToken);
+          return ResponseEntity.ok(isValid);
+      } catch (Exception e) {
+          return ResponseEntity.ok(false);
+      }
   }
 }
