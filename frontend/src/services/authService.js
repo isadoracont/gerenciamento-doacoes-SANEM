@@ -9,12 +9,10 @@ class AuthService {
     this.baseURL = API_CONFIG.BASE_URL;
   }
 
-  // Verifica se o usuário está autenticado
   isAuthenticated() {
     return !!this.getToken();
   }
 
-  // Obtém o token de autenticação
   getToken() {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(this.tokenKey);
@@ -22,7 +20,6 @@ class AuthService {
     return null;
   }
 
-  // Obtém os dados do usuário
   getUser() {
     if (typeof window !== 'undefined') {
       const userData = localStorage.getItem(this.userKey);
@@ -31,7 +28,6 @@ class AuthService {
     return null;
   }
 
-  // Salva o token e dados do usuário
   setAuthData(token, user) {
     if (typeof window !== 'undefined') {
       localStorage.setItem(this.tokenKey, token);
@@ -39,7 +35,6 @@ class AuthService {
     }
   }
 
-  // Remove os dados de autenticação
   clearAuthData() {
     if (typeof window !== 'undefined') {
       localStorage.removeItem(this.tokenKey);
@@ -47,7 +42,6 @@ class AuthService {
     }
   }
 
-  // Login com usuário e senha
   async login(username, password) {
     try {
       if (!username || !password) {
@@ -56,13 +50,8 @@ class AuthService {
 
       const response = await fetch(`${this.baseURL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          login: username,
-          password: password
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login: username, password: password })
       });
 
       if (!response.ok) {
@@ -76,24 +65,19 @@ class AuthService {
         id: data.userId,
         name: data.name,
         email: data.email,
-        role: data.role, // Nome do perfil (ex: "Administrador", "Atendente")
-        perfilId: null // Será preenchido quando buscar dados completos do usuário
+        role: data.role,
+        perfilId: null
       };
 
       this.setAuthData(data.token, user);
 
-      return {
-        success: true,
-        user: user,
-        token: data.token
-      };
+      return { success: true, user, token: data.token };
     } catch (error) {
       console.error('Erro no login:', error);
       throw error;
     }
   }
 
-  // Logout
   logout() {
     this.clearAuthData();
     if (typeof window !== 'undefined') {
@@ -101,36 +85,36 @@ class AuthService {
     }
   }
 
-  // Verifica se o token é válido
   async validateToken() {
     const token = this.getToken();
-    if (!token) {
-      return false;
-    }
+    if (!token) return false;
 
     try {
       const response = await fetch(`${this.baseURL}/auth/validate`, {
         method: 'POST',
         headers: {
-          'Authorization': token,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         }
       });
 
-      return response.ok;
+      if (!response.ok) {
+        this.clearAuthData();
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error('Erro na validação do token:', error);
       return false;
     }
   }
 
-  // Obtém o header de autorização para requisições
   getAuthHeader() {
     const token = this.getToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 }
 
-// Instância singleton do serviço
 const authService = new AuthService();
 export default authService;

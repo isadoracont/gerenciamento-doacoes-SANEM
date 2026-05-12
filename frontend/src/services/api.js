@@ -13,7 +13,7 @@ class ApiService {
 
         // Obter token de autenticação
         const token = authService.getToken()
-        const authHeader = token ? { Authorization: token } : {}
+        const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
         const config = {
             headers: {
@@ -28,14 +28,10 @@ class ApiService {
             const response = await fetch(url, config)
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}))
-                throw new Error(
-                    errorData.message ||
-                        `HTTP error! status: ${response.status}`
-                )
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
             }
 
-            // Se a resposta for vazia (204 No Content), retorna null
             if (response.status === 204) {
                 return null
             }
@@ -44,7 +40,6 @@ class ApiService {
         } catch (error) {
             console.error(`API Error [${endpoint}]:`, error)
 
-            // Melhorar mensagem de erro para "Failed to fetch"
             if (
                 error.message === "Failed to fetch" ||
                 error.name === "TypeError"
@@ -278,7 +273,7 @@ class ApiService {
     async generateCardForBeneficiary(beneficiaryId) {
         const url = `${this.baseURL}/card/generate/${beneficiaryId}`
         const token = authService.getToken()
-        const authHeader = token ? { Authorization: token } : {}
+        const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
 
         const response = await fetch(url, {
             method: "POST",
