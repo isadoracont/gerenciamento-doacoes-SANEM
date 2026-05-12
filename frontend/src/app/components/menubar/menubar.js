@@ -22,21 +22,6 @@ export default function MenuBar({ hasNotification }) {
     }
   }, []);
 
-  const handleUserClick = () => {
-    if (userId) {
-      // Navegar para a página de usuários com parâmetro para editar o próprio usuário
-      router.push(`/usuarios?editSelf=true`);
-    } else {
-      // Se não tiver ID, tentar buscar
-      const user = authService.getUser();
-      if (user && user.id) {
-        router.push(`/usuarios?editSelf=true`);
-      } else {
-        showNotification("Erro ao carregar dados do usuário", "error");
-      }
-    }
-  };
-
   const handleLogout = () => {
     authService.logout();
     showNotification("Logout realizado com sucesso!", "success");
@@ -46,7 +31,7 @@ export default function MenuBar({ hasNotification }) {
   return (
     <header className={styles.menuBar}>
       <div className={styles.rightSection}>
-        <div className={styles.userInfo} onClick={handleUserClick}>
+        <div className={styles.userInfo}>
           <UserIcon />
           <span className={styles.userName}>{userName}</span>
           <span className={styles.arrowDown}>▼</span>
