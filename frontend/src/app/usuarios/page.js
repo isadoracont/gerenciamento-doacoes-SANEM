@@ -40,59 +40,16 @@ export default function UsuariosPage() {
   const [formErrors, setFormErrors] = useState({});
   const [editFormErrors, setEditFormErrors] = useState({});
   const [changePassword, setChangePassword] = useState(false);
-  const [allowNonAdminEdit, setAllowNonAdminEdit] = useState(false);
 
   useEffect(() => {
-    // Verificar se deve permitir edição de não-admin (editando a si mesmo)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('editSelf') === 'true') {
-      setAllowNonAdminEdit(true);
-    }
-    
     const initialize = async () => {
       await checkAdmin();
       await loadUsers();
       await loadProfiles();
-      
-      // Verificar se deve abrir o modal de edição do próprio usuário
-      if (urlParams.get('editSelf') === 'true') {
-        handleEditSelf();
-        // Limpar o parâmetro da URL
-        window.history.replaceState({}, '', '/usuarios');
-      }
     };
     
     initialize();
   }, []);
-
-  const handleEditSelf = async () => {
-    try {
-      const user = authService.getUser();
-      if (!user || !user.id) {
-        showNotification("Erro ao carregar dados do usuário", "error");
-        return;
-      }
-      
-      // Carregar dados do usuário atual
-      const userData = await apiService.getUser(user.id);
-      const mappedUser = mapUserFromBackend(userData);
-      setEditFormData({
-        nomeCompleto: mappedUser.nomeCompleto || '',
-        email: mappedUser.email || '',
-        login: mappedUser.login || '',
-        senha: '',
-        perfilId: mappedUser.perfilId?.toString() || '',
-        status: mappedUser.status || 'ACTIVE'
-      });
-      setEditFormErrors({});
-      setChangePassword(false);
-      setEditingUser(mappedUser);
-      setShowEditModal(true);
-    } catch (err) {
-      console.error("Erro ao carregar usuário:", err);
-      showNotification(err.message || "Erro ao carregar dados do usuário", "error");
-    }
-  };
 
   const checkAdmin = async () => {
     const user = authService.getUser();
@@ -316,14 +273,6 @@ export default function UsuariosPage() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    // Verificar se está editando a si mesmo ou se é admin
-    const currentUser = authService.getUser();
-    const isEditingSelf = currentUser && editingUser && currentUser.id === editingUser.id;
-    
-    if (!isAdmin && !isEditingSelf) {
-      showNotification("Apenas administradores podem editar outros usuários", "error");
-      return;
-    }
 
     const errors = validateEditForm();
     if (Object.keys(errors).length > 0) {
@@ -369,7 +318,7 @@ export default function UsuariosPage() {
     }
   };
 
-  if (!isAdmin && !allowNonAdminEdit) {
+  if (!isAdmin) {
     return (
       <div className={styles.containerGeral}>
         <Navigation />
