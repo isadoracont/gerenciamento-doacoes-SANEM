@@ -24,10 +24,10 @@ public class DonationController {
     private final DonorService donorService;
     private final AppUserService userService;
 
-    @PostMapping
+    @PostMapping({"", "/"})
     public ResponseEntity<DonationDTO> create(@Valid @RequestBody DonationFormDTO formDTO) {
         Donor donor = donorService.getOrThrowException(formDTO.donorId());
-        AppUser user = userService.getOrThrowException(formDTO.receiverUserId());
+        AppUser user = userService.getOrThrowException(formDTO.attendantUserId());
 
         DonationDTO donationCriada = donationService.create(formDTO, donor, user);
 
@@ -41,11 +41,16 @@ public class DonationController {
         return ResponseEntity.ok(donation);
     }
 
-    @GetMapping
+    @GetMapping({"", "/"})
     public ResponseEntity<List<DonationDTO>> findAll() {
         List<DonationDTO> allDonations = donationService.findAll();
 
         return ResponseEntity.ok(allDonations);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        donationService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
