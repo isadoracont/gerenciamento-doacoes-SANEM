@@ -24,6 +24,7 @@ public class AppUserService {
     private final AppUserCreateMapper appUserCreateMapper;
     private final AppUserDTOMapper appUserDTOMapper;
     private final AppUserUpdateMapper appUserUpdateMapper;
+    private final AuthService authService;
 
     public AppUser generateUser(AppUserFormDTO appUserFormDTO) {
         return appUserCreateMapper.convert(appUserFormDTO);
@@ -50,7 +51,19 @@ public class AppUserService {
     }
 
     public void delete(AppUser user) {
-        appUserRepository.delete(user);
+        AppUser usuarioLogado = authService.getCurrentUser();
+
+        if (usuarioLogado.getUserId().equals(user.getUserId())) {
+            throw new RuntimeException("Você não pode deletar sua própria conta");
+        }
+
+        try {
+            appUserRepository.delete(user);
+        } catch (Exception e) {
+            throw new RuntimeException(
+                "Não é possível excluir usuário vinculado a doações."
+            );
+        }
     }
 
     public List<AppUser> list() {
