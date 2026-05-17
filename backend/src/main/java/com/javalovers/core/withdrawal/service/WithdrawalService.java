@@ -266,15 +266,35 @@ public class WithdrawalService {
     @Transactional
     public void delete(Withdrawal withdrawal) {
         Long withdrawalId = withdrawal.getWithdrawalId();
-        
-        // Soft delete dos registros em item_withdrawn que referenciam este withdrawal
-        Query deleteItemWithdrawnQuery = entityManager.createNativeQuery(
-            "UPDATE item_withdrawn SET deleted_at = NOW() WHERE withdrawal_id = ? AND deleted_at IS NULL"
-        );
-        deleteItemWithdrawnQuery.setParameter(1, withdrawalId);
-        deleteItemWithdrawnQuery.executeUpdate();
-        
-        // Soft delete do withdrawal
+
+        List<ItemWithdrawn> itemsWithdrawn = itemWithdrawnRepository.findByWithdrawal_WithdrawalId(withdrawalId);
+
+        if (itemsWithdrawn != null && !itemsWithdrawn.isEmpty()) {
+            int itensDevolvidosAoLimite = 0;
+
+            for (ItemWithdrawn itemWithdrawn : itemsWithdrawn) {
+                Item item = itemWithdrawn.getItem();
+                
+                Long estoqueAtual = item.getStockQuantity() != null ? item.getStockQuantity() : 0L;
+                item.setStockQuantity(estoqueAtual + itemWithdrawn.getQuantity().longValue());
+                itemService.save(item);
+                
+                itensDevolvidosAoLimite += itemWithdrawn.getQuantity();
+
+                itemWithdrawn.softDelete();
+                itemWithdrawnRepository.save(itemWithdrawn);
+            }
+
+            if (withdrawal.getBeneficiary() != null) {
+                Beneficiary beneficiary = withdrawal.getBeneficiary();
+                if (beneficiary.getCurrentWithdrawalsThisMonth() != null) {
+                    int novoValor = Math.max(0, beneficiary.getCurrentWithdrawalsThisMonth() - itensDevolvidosAoLimite);
+                    beneficiary.setCurrentWithdrawalsThisMonth(novoValor);
+                    beneficiaryService.save(beneficiary);
+                }
+            }
+        }
+
         withdrawal.softDelete();
         withdrawalRepository.save(withdrawal);
     }
