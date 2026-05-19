@@ -12,6 +12,7 @@ public record BeneficiaryDTO (
         BeneficiaryStatus beneficiaryStatus,
         AppUserDTO approverId,
         Integer withdrawalLimit,
-        Integer currentWithdrawalsThisMonth
+        Integer currentWithdrawalsThisMonth,
+        Integer remainingWithdrawals
 ){
 }
