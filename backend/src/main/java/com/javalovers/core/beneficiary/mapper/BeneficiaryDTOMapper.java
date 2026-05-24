@@ -14,6 +14,13 @@ public class BeneficiaryDTOMapper {
 
     public BeneficiaryDTO convert(Beneficiary beneficiary){
         if(beneficiary == null) return null;
+        
+        // Calculate remaining withdrawals
+        Integer remainingWithdrawals = null;
+        if (beneficiary.getWithdrawalLimit() != null && beneficiary.getCurrentWithdrawalsThisMonth() != null) {
+            remainingWithdrawals = beneficiary.getWithdrawalLimit() - beneficiary.getCurrentWithdrawalsThisMonth();
+        }
+        
         return new BeneficiaryDTO(
                 beneficiary.getBeneficiaryId(),
                 beneficiary.getFullName(),
@@ -23,7 +30,8 @@ public class BeneficiaryDTOMapper {
                 beneficiary.getBeneficiaryStatus(),
                 appUserDTOMapper.convert(beneficiary.getApproverId()),
                 beneficiary.getWithdrawalLimit(),
-                beneficiary.getCurrentWithdrawalsThisMonth()
+                beneficiary.getCurrentWithdrawalsThisMonth(),
+                remainingWithdrawals
         );
     }
 }

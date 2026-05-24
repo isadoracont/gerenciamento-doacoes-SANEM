@@ -119,6 +119,7 @@ export const mapBeneficiaryFromBackend = (backendBeneficiary) => {
         withdrawalLimit: backendBeneficiary.withdrawalLimit || "",
         currentWithdrawalsThisMonth:
             backendBeneficiary.currentWithdrawalsThisMonth || 0,
+        remainingWithdrawals: backendBeneficiary.remainingWithdrawals || 0,
         endereco: socioeconomicData.endereco || "",
         bairro: socioeconomicData.bairro || "",
         numero: socioeconomicData.numero || "",

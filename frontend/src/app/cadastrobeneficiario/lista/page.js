@@ -539,6 +539,7 @@ export default function ListaBeneficiarios() {
                   <th>Nome</th>
                   <th>CPF/CRNM</th>
                   <th>Telefone</th>
+                  <th>Retiradas Restantes</th>
                   <th>Status</th>
                   <th>Ações</th>
                 </tr>
@@ -546,15 +547,15 @@ export default function ListaBeneficiarios() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className={styles.loadingMessage}>Carregando...</td>
+                    <td colSpan={6} className={styles.loadingMessage}>Carregando...</td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={5} className={styles.errorMessage}>{error}</td>
+                    <td colSpan={6} className={styles.errorMessage}>{error}</td>
                   </tr>
                 ) : beneficiarios.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className={styles.noDataMessage}>Nenhum beneficiário cadastrado ainda.</td>
+                    <td colSpan={6} className={styles.noDataMessage}>Nenhum beneficiário cadastrado ainda.</td>
                   </tr>
                 ) : (
                   beneficiarios.map((b) => (
@@ -562,6 +563,12 @@ export default function ListaBeneficiarios() {
                       <td>{b.nomeCompleto}</td>
                       <td>{b.cpfCrnm ? maskCPF(b.cpfCrnm) : (b.nif || '-')}</td>
                       <td>{b.telefoneCelular ? maskPhone(b.telefoneCelular) : '-'}</td>
+                      <td>
+                        {b.remainingWithdrawals !== undefined && b.remainingWithdrawals !== null 
+                          ? `${b.remainingWithdrawals}/${b.withdrawalLimit || 0}`
+                          : '-'
+                        }
+                      </td>
                       <td>
                         <span className={getStatusClass(b.status)}>
                           {getStatusLabel(b.status)}
