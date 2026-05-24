@@ -2,20 +2,21 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import authService from "../services/authService";
 import { useApi } from "../hooks/useApi";
 import { useNotification } from "../components/notifications/NotificationProvider";
 
-
 export default function Login() {
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { loading, execute, clearError } = useApi();
   const { showNotification } = useNotification();
 
   async function handleSubmit(e) {
     e.preventDefault();
     clearError();
-    
+
     const form = e.target;
     const username = form[0].value;
     const password = form[1].value;
@@ -38,24 +39,36 @@ export default function Login() {
   }
 
   return (
-    <>
-      <div className={styles.page}>
-        <div className={styles.loginBox}>
-          <div className={styles.logoContainer}>
-            <Image src="/logo-sanem.svg" alt="Logo SANEM" width={120} height={120} className={styles.logo} />
-          </div>
-          <h2 className={styles.loginTitle}>Login</h2>
-          <form className={styles.loginForm} onSubmit={handleSubmit}>
-            <input type="text" placeholder="Usuário" className={styles.input} />
-            <input type="password" placeholder="Senha" className={styles.input} />
-            <button type="submit" className={styles.button} disabled={loading}>
-              {loading ? 'Entrando...' : 'Login'}
-            </button>
-          </form>
-          {error && <div className={styles.errorMsg}>{error}</div>}
-          <a href="#" className={styles.forgot}>Esqueci minha senha</a>
+    <div className={styles.page}>
+      <div className={styles.loginBox}>
+        <div className={styles.logoContainer}>
+          <Image src="/logo-sanem.svg" alt="Logo SANEM" width={120} height={120} className={styles.logo} />
         </div>
+        <h2 className={styles.loginTitle}>Login</h2>
+        <form className={styles.loginForm} onSubmit={handleSubmit}>
+          <input type="text" placeholder="Usuário" className={styles.input} />
+          <div className={styles.passwordWrapper}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Senha"
+              className={styles.input}
+            />
+            <button
+              type="button"
+              className={styles.togglePassword}
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+            </button>
+          </div>
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? "Entrando..." : "Login"}
+          </button>
+        </form>
+        {error && <div className={styles.errorMsg}>{error}</div>}
+        <a href="#" className={styles.forgot}>Esqueci minha senha</a>
       </div>
-    </>
+    </div>
   );
 }
