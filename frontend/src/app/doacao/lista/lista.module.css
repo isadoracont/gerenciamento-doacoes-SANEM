@@ -432,6 +432,16 @@
     justify-content: center;
     transition: all 0.2s;
     font-size: 0.9rem;
+    
+    color: var(--color-primary)
+}
+
+/* Garante que o ícone SVG herde a cor correta e tenha um tamanho bom */
+.quantityButton svg {
+  display: block;
+  fill: currentColor; /* Obriga o SVG a usar a cor definida acima */
+  width: 12px;
+  height: 12px;
 }
 
 .quantityButton:hover:not(:disabled) {
