@@ -3,7 +3,12 @@ export const mapDonorToBackend = (frontendDonor) => {
     return {
         name: frontendDonor.nomeCompleto,
         cpfCnpj: frontendDonor.cpf,
-        contact: frontendDonor.email // Contact deve ser email conforme validação do backend
+        contact: frontendDonor.telefoneCelular, // Usando telefone como contato obrigatório do back-end
+        email: frontendDonor.email || null,
+        streetAddress: frontendDonor.endereco || null,
+        numberAddress: frontendDonor.numero ? parseInt(frontendDonor.numero, 10) : null,
+        detailsAddress: frontendDonor.complemento || null,
+        nbAddress: frontendDonor.bairro || null
     }
 }
 

@@ -13,7 +13,13 @@ public class DonorDTOMapper {
                 donor.getDonorId(),
                 donor.getName(),
                 donor.getCpfCnpj(),
-                donor.getContact()
+                donor.getContact(),
+                donor.getEmail(),
+                donor.getStreetAddress(),
+                donor.getNumberAddress(),
+                donor.getDetailsAddress(),
+                donor.getNbAddress(),
+                donor.getCep()
         );
     }
 }
