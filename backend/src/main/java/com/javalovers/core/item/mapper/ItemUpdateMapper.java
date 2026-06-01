@@ -9,7 +9,6 @@ public class ItemUpdateMapper {
 
     public void update(Item item, ItemFormDTO itemFormDTO){
         item.setDescription(itemFormDTO.description());
-        item.setStockQuantity(itemFormDTO.stockQuantity());
         item.setTagCode(itemFormDTO.tagCode());
     }
 }

@@ -1,6 +1,8 @@
 package com.javalovers.core.donation.service;
 
 import com.javalovers.common.exception.EntityNotFoundException;
+import com.javalovers.core.inventory.service.InventoryService;
+import com.javalovers.core.inventory.domain.enums.TransactionType;
 import com.javalovers.core.donation.domain.dto.request.DonationFormDTO;
 import com.javalovers.core.donation.domain.dto.response.DonationDTO;
 import com.javalovers.core.donation.domain.entity.Donation;
@@ -31,6 +33,8 @@ public class DonationService {
     private final ItemService itemService; 
     private final ItemDonatedRepository itemDonatedRepository;
 
+    private final InventoryService inventoryService;
+
     @Transactional
     public DonationDTO create(DonationFormDTO formDTO, Donor donor, AppUser user) {
         Donation donation = donationCreateMapper.convert(formDTO, donor, user);
@@ -42,19 +46,20 @@ public class DonationService {
             // Cenário em que o item já existe: Busca no banco e aumenta o estoque
             if (itemDTO.itemId() != null) {
                 item = itemService.getOrThrowException(itemDTO.itemId());
-                
-                Long estoqueAtual = item.getStockQuantity() != null ? item.getStockQuantity() : 0L;
-                item.setStockQuantity(estoqueAtual + itemDTO.quantity().longValue());
-                
             } else {
                 // Cenário em que o item é novo: Cria a entidade do zero
                 item = new Item();
-                
                 item.setDescription(itemDTO.newItemName());
-                item.setStockQuantity(itemDTO.quantity().longValue());
+                item.setStockQuantity(0L); 
+                itemService.save(item);
             }
 
-            itemService.save(item);
+           inventoryService.processTransaction(
+                item, 
+                itemDTO.quantity().longValue(), 
+                TransactionType.DONATION_IN, 
+                donationSalva.getDonationId()
+            );
 
             ItemDonated itemDonated = new ItemDonated();
             itemDonated.setDonation(donationSalva);
@@ -74,11 +79,12 @@ public class DonationService {
             for(ItemDonated idon : donation.getItems()) {
                 Item item = idon.getItem();
                 
-                Long estoqueAtual = item.getStockQuantity() != null ? item.getStockQuantity() : 0L;
-                Long novoEstoque = Math.max(0L, estoqueAtual - idon.getQuantity().longValue()); 
-                
-                item.setStockQuantity(novoEstoque);
-                itemService.save(item);
+                inventoryService.processTransaction(
+                    item, 
+                    idon.getQuantity().longValue(), 
+                    TransactionType.DONATION_REVERSAL, 
+                    donation.getDonationId()
+                );
                 
                 idon.softDelete();
                 itemDonatedRepository.save(idon);

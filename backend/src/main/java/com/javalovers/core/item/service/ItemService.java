@@ -2,6 +2,8 @@ package com.javalovers.core.item.service;
 
 import com.javalovers.common.specification.SearchCriteria;
 import com.javalovers.common.specification.SpecificationHelper;
+import com.javalovers.core.inventory.service.InventoryService;
+import com.javalovers.core.inventory.domain.enums.TransactionType;
 import com.javalovers.core.item.domain.dto.request.ItemFilterDTO;
 import com.javalovers.core.item.domain.dto.request.ItemFormDTO;
 import com.javalovers.core.item.domain.dto.response.ItemDTO;
@@ -13,8 +15,6 @@ import com.javalovers.core.item.mapper.ItemUpdateMapper;
 import com.javalovers.core.item.repository.ItemRepository;
 import com.javalovers.core.item.specification.ItemSpecification;
 import com.javalovers.core.item.util.QRCodeService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +36,7 @@ public class ItemService {
     private final ItemDTOMapper itemDTOMapper;
     private final ItemUpdateMapper itemUpdateMapper;
     private final QRCodeService qrCodeService;
-    private final EntityManager entityManager;
+    private final InventoryService inventoryService;
 
     public Item generateItem(ItemFormDTO itemFormDTO) {
         return itemCreateMapper.convert(itemFormDTO);
@@ -45,7 +45,15 @@ public class ItemService {
     @Transactional
     public Item createAndSave(ItemFormDTO itemFormDTO) {
         Item item = itemCreateMapper.convert(itemFormDTO);
-        return itemRepository.save(item);
+        item = itemRepository.save(item);
+
+        Long requestedInitialStock = itemFormDTO.stockQuantity() != null ? itemFormDTO.stockQuantity() : 0L; 
+
+        if (requestedInitialStock > 0) {
+            inventoryService.processTransaction(item, requestedInitialStock, TransactionType.MANUAL_ADJUSTMENT_IN, null);
+        }
+
+        return item;
     }
 
     @Transactional
@@ -66,29 +74,45 @@ public class ItemService {
                 () -> new com.javalovers.common.exception.EntityNotFoundException("item", id));
     }
 
+    @Transactional
     public void updateItem(Item item, ItemFormDTO itemFormDTO) {
-        itemUpdateMapper.update(item, itemFormDTO);
+        Long currentStock = item.getStockQuantity() != null ? item.getStockQuantity() : 0L;
+        Long requestedStock = itemFormDTO.stockQuantity() != null ? itemFormDTO.stockQuantity() : 0L;
+
+        if (requestedStock < 0) {
+            throw new IllegalArgumentException("O estoque do item não pode ser um valor negativo.");
+        }
+
+        itemUpdateMapper.update(item, itemFormDTO); 
+
+        if (!currentStock.equals(requestedStock)) {
+            if (requestedStock > currentStock) {
+                Long difference = requestedStock - currentStock;
+                inventoryService.processTransaction(item, difference, TransactionType.MANUAL_ADJUSTMENT_IN, null);
+            } else {
+                Long difference = currentStock - requestedStock;
+                inventoryService.processTransaction(item, difference, TransactionType.MANUAL_ADJUSTMENT_OUT, null);
+            }
+        }
+
+        itemRepository.save(item); 
     }
 
     @Transactional
     public void delete(Item item) {
-        Long itemId = item.getItemId();
-        
-        // Soft delete dos registros em item_donated que referenciam este item
-        Query deleteItemDonatedQuery = entityManager.createNativeQuery(
-            "UPDATE item_donated SET deleted_at = NOW() WHERE item_id = ? AND deleted_at IS NULL"
-        );
-        deleteItemDonatedQuery.setParameter(1, itemId);
-        deleteItemDonatedQuery.executeUpdate();
-        
-        // Soft delete dos registros em item_withdrawn que referenciam este item
-        Query deleteItemWithdrawnQuery = entityManager.createNativeQuery(
-            "UPDATE item_withdrawn SET deleted_at = NOW() WHERE item_id = ? AND deleted_at IS NULL"
-        );
-        deleteItemWithdrawnQuery.setParameter(1, itemId);
-        deleteItemWithdrawnQuery.executeUpdate();
-        
-        // Soft delete do item
+        Long currentStock = item.getStockQuantity();
+
+        if (currentStock != null && currentStock > 0) {
+            inventoryService.processTransaction(
+                item, 
+                currentStock, 
+                TransactionType.MANUAL_ADJUSTMENT_OUT,
+                null
+            );
+
+            item.setStockQuantity(0L); 
+        }
+
         item.softDelete();
         itemRepository.save(item);
     }
@@ -115,9 +139,13 @@ public class ItemService {
         Specification<Item> stockQuantitySpecification = new ItemSpecification(stockQuantityCriteria);
         Specification<Item> tagCodeSpecification = new ItemSpecification(tagCodeCriteria);
 
+        Specification<Item> notDeletedSpecification = (root, query, criteriaBuilder) -> 
+            criteriaBuilder.isNull(root.get("deletedAt"));
+
         return Specification.where(descriptionSpecification)
                 .and(stockQuantitySpecification)
-                .and(tagCodeSpecification);
+                .and(tagCodeSpecification)
+                .and(notDeletedSpecification);
     }
 
     public Page<ItemDTO> generateItemDTOPage(Page<Item> itemPage) {
