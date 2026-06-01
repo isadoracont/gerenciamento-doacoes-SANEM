@@ -1,42 +1,41 @@
+const onlyDigits = (value) => value?.replace(/\D/g, "") ?? "";
+const isAllRepeatedDigits = (value) => /^(\d)\1+$/.test(value);
+
 // Validação de CPF
 export const validateCPF = (cpf) => {
   if (!cpf) return { valid: false, message: "CPF é obrigatório" };
 
-  // Remove caracteres não numéricos
-  const cleaned = cpf.replace(/\D/g, "");
+  const cleaned = onlyDigits(cpf);
 
-  // Verifica se tem 11 dígitos
   if (cleaned.length !== 11) {
     return { valid: false, message: "CPF deve conter 11 dígitos" };
   }
 
-  // Verifica se todos os dígitos são iguais
-  if (/^(\d)\1{10}$/.test(cleaned)) {
+  if (isAllRepeatedDigits(cleaned)) {
     return { valid: false, message: "CPF inválido (números repetidos)" };
   }
 
-  // Validação dos dígitos verificadores
-  let sum = 0;
-  let remainder;
+  const digits = cleaned.split("").map(Number);
 
-  // Valida primeiro dígito verificador
-  for (let i = 1; i <= 9; i++) {
-    sum += parseInt(cleaned.substring(i - 1, i)) * (11 - i);
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += digits[i] * (10 - i);
   }
-  remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  if (remainder !== parseInt(cleaned.substring(9, 10))) {
+
+  let remainder = sum % 11;
+  const firstVerifier = remainder < 2 ? 0 : 11 - remainder;
+  if (firstVerifier !== digits[9]) {
     return { valid: false, message: "CPF inválido" };
   }
 
-  // Valida segundo dígito verificador
   sum = 0;
-  for (let i = 1; i <= 10; i++) {
-    sum += parseInt(cleaned.substring(i - 1, i)) * (12 - i);
+  for (let i = 0; i < 10; i++) {
+    sum += digits[i] * (11 - i);
   }
-  remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  if (remainder !== parseInt(cleaned.substring(10, 11))) {
+
+  remainder = sum % 11;
+  const secondVerifier = remainder < 2 ? 0 : 11 - remainder;
+  if (secondVerifier !== digits[10]) {
     return { valid: false, message: "CPF inválido" };
   }
 
@@ -47,47 +46,39 @@ export const validateCPF = (cpf) => {
 export const validateCNPJ = (cnpj) => {
   if (!cnpj) return { valid: false, message: "CNPJ é obrigatório" };
 
-  // Remove caracteres não numéricos
-  const cleaned = cnpj.replace(/\D/g, "");
+  const cleaned = onlyDigits(cnpj);
 
-  // Verifica se tem 14 dígitos
   if (cleaned.length !== 14) {
     return { valid: false, message: "CNPJ deve conter 14 dígitos" };
   }
 
-  // Verifica se todos os dígitos são iguais
   if (/^(\d)\1{13}$/.test(cleaned)) {
     return { valid: false, message: "CNPJ inválido (números repetidos)" };
   }
 
-  // Validação dos dígitos verificadores
-  let length = cleaned.length - 2;
-  let numbers = cleaned.substring(0, length);
-  const digits = cleaned.substring(length);
-  let sum = 0;
-  let pos = length - 7;
+  const digits = cleaned.split("").map(Number);
+  const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
 
-  // Valida primeiro dígito verificador
-  for (let i = length; i >= 1; i--) {
-    sum += numbers.charAt(length - i) * pos--;
-    if (pos < 2) pos = 9;
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    sum += digits[i] * weights1[i];
   }
-  let result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (result !== parseInt(digits.charAt(0))) {
+
+  let remainder = sum % 11;
+  const firstVerifier = remainder < 2 ? 0 : 11 - remainder;
+  if (firstVerifier !== digits[12]) {
     return { valid: false, message: "CNPJ inválido" };
   }
 
-  // Valida segundo dígito verificador
-  length = length + 1;
-  numbers = cleaned.substring(0, length);
   sum = 0;
-  pos = length - 7;
-  for (let i = length; i >= 1; i--) {
-    sum += numbers.charAt(length - i) * pos--;
-    if (pos < 2) pos = 9;
+  for (let i = 0; i < 13; i++) {
+    sum += digits[i] * weights2[i];
   }
-  result = sum % 11 < 2 ? 0 : 11 - (sum % 11);
-  if (result !== parseInt(digits.charAt(1))) {
+
+  remainder = sum % 11;
+  const secondVerifier = remainder < 2 ? 0 : 11 - remainder;
+  if (secondVerifier !== digits[13]) {
     return { valid: false, message: "CNPJ inválido" };
   }
 
@@ -98,12 +89,12 @@ export const validateCNPJ = (cnpj) => {
 export const validateCPForCNPJ = (value) => {
   if (!value) return { valid: false, message: "CPF/CNPJ é obrigatório" };
 
-  const cleaned = value.replace(/\D/g, "");
+  const cleaned = onlyDigits(value);
 
   if (cleaned.length === 11) {
-    return validateCPF(value);
+    return validateCPF(cleaned);
   } else if (cleaned.length === 14) {
-    return validateCNPJ(value);
+    return validateCNPJ(cleaned);
   } else {
     return { valid: false, message: "CPF deve conter 11 dígitos ou CNPJ deve conter 14 dígitos" };
   }
