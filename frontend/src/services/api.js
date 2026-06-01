@@ -313,6 +313,8 @@ class ApiService {
         return this.request(endpoint)
     }
 
+    // (removed) verifyCpf - frontend uses local validation only
+
     async getBeneficiary(id) {
         return this.request(`/beneficiary/${id}`)
     }
