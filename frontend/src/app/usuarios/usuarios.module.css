@@ -391,3 +391,41 @@
   }
 }
 
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.passwordWrapper .input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: #888;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.togglePassword:hover {
+  background: none !important;
+  color: #555;
+}
+
+.togglePassword:focus,
+.togglePassword:focus-visible,
+.togglePassword:active {
+  background: none !important;
+  outline: none;
+}
+
