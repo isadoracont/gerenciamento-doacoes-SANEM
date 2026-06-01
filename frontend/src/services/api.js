@@ -29,7 +29,12 @@ class ApiService {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+                const apiError = new Error(
+                    errorData?.message || errorData?.error || `HTTP error! status: ${response.status}`
+                );
+                apiError.status = response.status;
+                apiError.response = errorData;
+                throw apiError;
             }
 
             if (response.status === 204) {
@@ -40,10 +45,11 @@ class ApiService {
         } catch (error) {
             console.error(`API Error [${endpoint}]:`, error)
 
-            if (
+            const isNetworkError =
                 error.message === "Failed to fetch" ||
                 error.name === "TypeError"
-            ) {
+
+            if (isNetworkError) {
                 const errorMessage = `Não foi possível conectar ao servidor. Verifique se o backend está rodando em ${this.baseURL}`
                 console.error(errorMessage)
                 throw new Error(errorMessage)

@@ -13,18 +13,20 @@ import java.util.Map;
 public class ValidationExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        
+
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             errors.put(error.getField(), error.getDefaultMessage());
         });
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("error", "Erro de validação");
-        response.put("message", "Dados inválidos fornecidos");
-        response.put("errors", errors);
-        
+
+        ApiErrorResponse response = new ApiErrorResponse(
+            "Erro de validação",
+            "Alguns campos estão inválidos. Verifique os dados e tente novamente.",
+            HttpStatus.BAD_REQUEST.value(),
+            errors
+        );
+
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
