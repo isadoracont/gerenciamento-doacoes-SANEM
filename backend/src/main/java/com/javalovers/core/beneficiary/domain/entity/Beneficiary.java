@@ -53,9 +53,6 @@ public class Beneficiary implements SoftDeletable {
     @Column(name = "withdrawal_limit")
     private Integer withdrawalLimit;
 
-    @Column(name = "current_withdrawals_this_month")
-    private Integer currentWithdrawalsThisMonth;
-
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

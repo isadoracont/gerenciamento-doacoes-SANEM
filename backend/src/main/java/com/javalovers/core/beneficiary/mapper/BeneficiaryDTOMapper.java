@@ -2,25 +2,29 @@ package com.javalovers.core.beneficiary.mapper;
 
 import com.javalovers.core.beneficiary.domain.dto.response.BeneficiaryDTO;
 import com.javalovers.core.beneficiary.domain.entity.Beneficiary;
+import com.javalovers.core.withdrawal.service.WithdrawalService;
 import com.javalovers.core.appuser.mapper.AppUserDTOMapper;
-import lombok.AllArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class BeneficiaryDTOMapper {
 
     private final AppUserDTOMapper appUserDTOMapper;
+    private final WithdrawalService withdrawalService;
+
+    public BeneficiaryDTOMapper(AppUserDTOMapper appUserDTOMapper, @Lazy WithdrawalService withdrawalService) {
+        this.appUserDTOMapper = appUserDTOMapper;
+        this.withdrawalService = withdrawalService;
+    }
 
     public BeneficiaryDTO convert(Beneficiary beneficiary){
         if(beneficiary == null) return null;
-        
-        // Calculate remaining withdrawals
-        Integer remainingWithdrawals = null;
-        if (beneficiary.getWithdrawalLimit() != null && beneficiary.getCurrentWithdrawalsThisMonth() != null) {
-            remainingWithdrawals = beneficiary.getWithdrawalLimit() - beneficiary.getCurrentWithdrawalsThisMonth();
-        }
-        
+
+        int totalLimit = withdrawalService.getMonthlyLimit(beneficiary.getBeneficiaryId());
+        int currentWithdrawals = withdrawalService.getItemsWithdrawnThisMonth(beneficiary.getBeneficiaryId());
+        int remainingWithdrawals = Math.max(0, totalLimit - currentWithdrawals);
+
         return new BeneficiaryDTO(
                 beneficiary.getBeneficiaryId(),
                 beneficiary.getFullName(),
@@ -29,8 +33,8 @@ public class BeneficiaryDTOMapper {
                 beneficiary.getSocioeconomicData(),
                 beneficiary.getBeneficiaryStatus(),
                 appUserDTOMapper.convert(beneficiary.getApproverId()),
-                beneficiary.getWithdrawalLimit(),
-                beneficiary.getCurrentWithdrawalsThisMonth(),
+                totalLimit,
+                currentWithdrawals,
                 remainingWithdrawals
         );
     }
