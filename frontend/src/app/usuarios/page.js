@@ -8,7 +8,7 @@ import apiService from '../../services/api';
 import authService from '../../services/authService';
 import { useNotification } from '../../components/notifications/NotificationProvider';
 import { mapUserFromBackend, mapUserToBackend } from '../../services/dataMapper';
-import { FaPlus, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaPlus, FaTrash, FaEdit, FaEye, FaEyeSlash } from 'react-icons/fa';
 import ConfirmationModal from '../../components/confirmation/ConfirmationModal';
 
 export default function UsuariosPage() {
@@ -40,6 +40,8 @@ export default function UsuariosPage() {
   const [formErrors, setFormErrors] = useState({});
   const [editFormErrors, setEditFormErrors] = useState({});
   const [changePassword, setChangePassword] = useState(false);
+  const [showAddPassword, setShowAddPassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   useEffect(() => {
     const initialize = async () => {
@@ -453,12 +455,22 @@ export default function UsuariosPage() {
 
               <div className={styles.formGroup}>
                 <label>Senha *</label>
-                <input
-                  type="password"
-                  value={formData.senha}
-                  onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
-                  className={formErrors.senha ? styles.inputError : ''}
-                />
+                <div className={styles.passwordWrapper}>
+                  <input
+                    type={showAddPassword ? "text" : "password"}
+                    value={formData.senha}
+                    onChange={(e) => setFormData({ ...formData, senha: e.target.value })}
+                    className={formErrors.senha ? styles.inputError : ''}
+                  />
+                  <button
+                    type="button"
+                    className={styles.togglePassword}
+                    onClick={() => setShowAddPassword(prev => !prev)}
+                    aria-label={showAddPassword ? "Ocultar senha" : "Mostrar senha"}
+                  >
+                    {showAddPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
                 {formErrors.senha && <span className={styles.errorText}>{formErrors.senha}</span>}
               </div>
 
@@ -551,14 +563,24 @@ export default function UsuariosPage() {
                 </label>
                 {changePassword && (
                   <>
-                    <input
-                      type="password"
-                      value={editFormData.senha}
-                      onChange={(e) => setEditFormData({ ...editFormData, senha: e.target.value })}
-                      className={editFormErrors.senha ? styles.inputError : ''}
-                      placeholder="Nova senha (mín. 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial)"
-                      style={{ marginTop: '8px', width: '100%', padding: '12px', border: '2px solid var(--color-border)', borderRadius: '8px', boxSizing: 'border-box' }}
-                    />
+                    <div className={styles.passwordWrapper} style={{ marginTop: '8px' }}>
+                      <input
+                        type={showEditPassword ? "text" : "password"}
+                        value={editFormData.senha}
+                        onChange={(e) => setEditFormData({ ...editFormData, senha: e.target.value })}
+                        className={editFormErrors.senha ? styles.inputError : ''}
+                        placeholder="Nova senha (mín. 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial)"
+                        style={{ width: '100%', padding: '12px', border: '2px solid var(--color-border)', borderRadius: '8px', boxSizing: 'border-box' }}
+                      />
+                      <button
+                        type="button"
+                        className={styles.togglePassword}
+                        onClick={() => setShowEditPassword(prev => !prev)}
+                        aria-label={showEditPassword ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {showEditPassword ? <FaEyeSlash /> : <FaEye />}
+                      </button>
+                    </div>
                     {editFormErrors.senha && <span className={styles.errorText}>{editFormErrors.senha}</span>}
                   </>
                 )}
