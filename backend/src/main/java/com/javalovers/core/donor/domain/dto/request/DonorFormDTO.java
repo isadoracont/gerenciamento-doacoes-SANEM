@@ -14,7 +14,11 @@ public record DonorFormDTO(
         String cpfCnpj,
         
         @NotBlank(message = "Contato é obrigatório")
-        @Email(message = "Email deve ter um formato válido")
-        String contact
+        String contact,
+
+        @Email(message = "E-mail deve ter um formato válido")
+        String email
+
+
 ) {
 }

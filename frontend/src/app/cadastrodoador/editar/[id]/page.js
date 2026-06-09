@@ -25,12 +25,7 @@ const EditarDoador = () => {
     nomeCompleto: "",
     telefoneCelular: "",
     email: "",
-    cpf: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: ""
+    cpf: ""
   });
 
   useEffect(() => {
@@ -51,12 +46,7 @@ const EditarDoador = () => {
           nomeCompleto: mappedDonor.nomeCompleto || "",
           telefoneCelular: telefoneMascarado,
           email: mappedDonor.email || "",
-          cpf: cpfMascarado,
-          endereco: mappedDonor.endereco || "",
-          bairro: mappedDonor.bairro || "",
-          numero: mappedDonor.numero || "",
-          complemento: mappedDonor.complemento || "",
-          pontoReferencia: mappedDonor.pontoReferencia || ""
+          cpf: cpfMascarado
         });
       } catch (err) {
         console.error("Erro ao carregar doador:", err);
@@ -246,60 +236,7 @@ const EditarDoador = () => {
               {fieldErrors.cpf && <span className={styles.fieldError}>{fieldErrors.cpf}</span>}
             </div>
             <hr className={styles.separador} />
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="endereco"><b>Endereço*</b></label>
-              <input 
-                id="endereco" 
-                name="endereco" 
-                value={form.endereco} 
-                onChange={handleChange} 
-                required 
-                placeholder="Rua da Água" 
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="numero"><b>Número*</b></label>
-              <input 
-                id="numero" 
-                name="numero" 
-                type="number" 
-                value={form.numero} 
-                onChange={handleChange} 
-                required 
-                placeholder="2015" 
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="complemento"><b>Complemento</b></label>
-              <input 
-                id="complemento" 
-                name="complemento" 
-                value={form.complemento} 
-                onChange={handleChange} 
-                placeholder="Ap 307" 
-              />
-            </div>
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="bairro"><b>Bairro*</b></label>
-              <input 
-                id="bairro" 
-                name="bairro" 
-                value={form.bairro} 
-                onChange={handleChange} 
-                required 
-                placeholder="Centro" 
-              />
-            </div>
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="pontoReferencia"><b>Ponto de referência</b></label>
-              <input 
-                id="pontoReferencia" 
-                name="pontoReferencia" 
-                value={form.pontoReferencia} 
-                onChange={handleChange} 
-                placeholder="Em frente ao parque" 
-              />
-            </div>
+            
             
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
               <button 

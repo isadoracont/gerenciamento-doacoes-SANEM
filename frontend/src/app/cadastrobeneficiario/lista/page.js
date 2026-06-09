@@ -31,11 +31,6 @@ export default function ListaBeneficiarios() {
     email: "",
     cpfCrnm: "",
     nif: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: "",
     withdrawalLimit: ""
   });
   const [formErrors, setFormErrors] = useState({});
@@ -47,11 +42,6 @@ export default function ListaBeneficiarios() {
     email: "",
     cpfCrnm: "",
     nif: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: "",
     withdrawalLimit: ""
   });
   const [editFormErrors, setEditFormErrors] = useState({});
@@ -132,11 +122,6 @@ export default function ListaBeneficiarios() {
         email: mappedBeneficiary.email || "",
         cpfCrnm: cpfMascarado,
         nif: mappedBeneficiary.nif || "",
-        endereco: mappedBeneficiary.endereco || "",
-        bairro: mappedBeneficiary.bairro || "",
-        numero: mappedBeneficiary.numero || "",
-        complemento: mappedBeneficiary.complemento || "",
-        pontoReferencia: mappedBeneficiary.pontoReferencia || "",
         withdrawalLimit: mappedBeneficiary.withdrawalLimit || ""
       });
       setEditFormErrors({});
@@ -224,11 +209,6 @@ export default function ListaBeneficiarios() {
       email: "",
       cpfCrnm: "",
       nif: "",
-      endereco: "",
-      bairro: "",
-      numero: "",
-      complemento: "",
-      pontoReferencia: "",
       withdrawalLimit: ""
     });
     setFormErrors({});
@@ -309,9 +289,6 @@ export default function ListaBeneficiarios() {
       errors.cpfCrnm = validateCPF(formData.cpfCrnm).message;
     }
     
-    if (!formData.endereco.trim()) errors.endereco = "Endereço é obrigatório";
-    if (!formData.bairro.trim()) errors.bairro = "Bairro é obrigatório";
-    if (!formData.numero.trim()) errors.numero = "Número é obrigatório";
     return errors;
   };
 
@@ -344,11 +321,6 @@ export default function ListaBeneficiarios() {
         email: "",
         cpfCrnm: "",
         nif: "",
-        endereco: "",
-        bairro: "",
-        numero: "",
-        complemento: "",
-        pontoReferencia: "",
         withdrawalLimit: ""
       });
       loadDataRaw();
@@ -431,9 +403,6 @@ export default function ListaBeneficiarios() {
       errors.cpfCrnm = validateCPF(editFormData.cpfCrnm).message;
     }
     
-    if (!editFormData.endereco.trim()) errors.endereco = "Endereço é obrigatório";
-    if (!editFormData.bairro.trim()) errors.bairro = "Bairro é obrigatório";
-    if (!editFormData.numero.trim()) errors.numero = "Número é obrigatório";
     return errors;
   };
 
@@ -467,13 +436,7 @@ export default function ListaBeneficiarios() {
         fullName: editFormData.nomeCompleto,
         cpf: cpfCrnmLimpo || nifLimpo,
         phone: phoneValidation.cleaned,
-        socioeconomicData: JSON.stringify({
-          endereco: editFormData.endereco,
-          bairro: editFormData.bairro,
-          numero: editFormData.numero,
-          complemento: editFormData.complemento,
-          pontoReferencia: editFormData.pontoReferencia,
-        }),
+        socioeconomicData:  'MODIFICAR PARA APARECER NO FRONT',
         beneficiaryStatus: editingBeneficiary.status || 'PENDING',
         withdrawalLimit: editFormData.withdrawalLimit ? parseInt(editFormData.withdrawalLimit) : null
       };
@@ -704,61 +667,7 @@ export default function ListaBeneficiarios() {
                 {(formErrors.nif || fieldErrors.nif) && <span className={styles.errorText}>{formErrors.nif || fieldErrors.nif}</span>}
               </div>
 
-              <div className={styles.formGroup}>
-                <label>Endereço *</label>
-                <input
-                  type="text"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={handleFieldChange}
-                  className={formErrors.endereco ? styles.inputError : ''}
-                />
-                {formErrors.endereco && <span className={styles.errorText}>{formErrors.endereco}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Número *</label>
-                <input
-                  type="text"
-                  name="numero"
-                  value={formData.numero}
-                  onChange={handleFieldChange}
-                  className={formErrors.numero ? styles.inputError : ''}
-                />
-                {formErrors.numero && <span className={styles.errorText}>{formErrors.numero}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Complemento</label>
-                <input
-                  type="text"
-                  name="complemento"
-                  value={formData.complemento}
-                  onChange={handleFieldChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Bairro *</label>
-                <input
-                  type="text"
-                  name="bairro"
-                  value={formData.bairro}
-                  onChange={handleFieldChange}
-                  className={formErrors.bairro ? styles.inputError : ''}
-                />
-                {formErrors.bairro && <span className={styles.errorText}>{formErrors.bairro}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Ponto de Referência</label>
-                <input
-                  type="text"
-                  name="pontoReferencia"
-                  value={formData.pontoReferencia}
-                  onChange={handleFieldChange}
-                />
-              </div>
+              
 
               <div className={styles.formGroup}>
                 <label>Limite de Retiradas Mensais (opcional)</label>
@@ -880,61 +789,6 @@ export default function ListaBeneficiarios() {
                 {(editFormErrors.nif || editFieldErrors.nif) && <span className={styles.errorText}>{editFormErrors.nif || editFieldErrors.nif}</span>}
               </div>
 
-              <div className={styles.formGroup}>
-                <label>Endereço *</label>
-                <input
-                  type="text"
-                  name="endereco"
-                  value={editFormData.endereco}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.endereco ? styles.inputError : ''}
-                />
-                {editFormErrors.endereco && <span className={styles.errorText}>{editFormErrors.endereco}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Número *</label>
-                <input
-                  type="text"
-                  name="numero"
-                  value={editFormData.numero}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.numero ? styles.inputError : ''}
-                />
-                {editFormErrors.numero && <span className={styles.errorText}>{editFormErrors.numero}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Complemento</label>
-                <input
-                  type="text"
-                  name="complemento"
-                  value={editFormData.complemento}
-                  onChange={handleEditFieldChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Bairro *</label>
-                <input
-                  type="text"
-                  name="bairro"
-                  value={editFormData.bairro}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.bairro ? styles.inputError : ''}
-                />
-                {editFormErrors.bairro && <span className={styles.errorText}>{editFormErrors.bairro}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Ponto de Referência</label>
-                <input
-                  type="text"
-                  name="pontoReferencia"
-                  value={editFormData.pontoReferencia}
-                  onChange={handleEditFieldChange}
-                />
-              </div>
 
               <div className={styles.formGroup}>
                 <label>Limite de Retiradas Mensais (opcional)</label>

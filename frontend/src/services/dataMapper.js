@@ -3,7 +3,8 @@ export const mapDonorToBackend = (frontendDonor) => {
     return {
         name: frontendDonor.nomeCompleto,
         cpfCnpj: frontendDonor.cpf,
-        contact: frontendDonor.email // Contact deve ser email conforme validação do backend
+        contact: frontendDonor.telefoneCelular, // Usando telefone como contato obrigatório do back-end
+        email: frontendDonor.email || null
     }
 }
 
@@ -13,12 +14,7 @@ export const mapDonorFromBackend = (backendDonor) => {
         nomeCompleto: backendDonor.name,
         cpf: backendDonor.cpfCnpj,
         telefoneCelular: backendDonor.contact,
-        email: backendDonor.contact, // Assumindo que contact pode ser email
-        endereco: "", // Campos não disponíveis no backend atual
-        bairro: "",
-        numero: "",
-        complemento: "",
-        pontoReferencia: ""
+        email: backendDonor.email, // Assumindo que contact pode ser email
     }
 }
 
@@ -85,13 +81,7 @@ export const mapBeneficiaryToBackend = (frontendBeneficiary) => {
         fullName: frontendBeneficiary.nomeCompleto,
         cpf: cpfValue || "", // Se não tem CPF mas tem NIF, envia string vazia
         phone: frontendBeneficiary.telefoneCelular, // Já vem limpo (apenas números) do frontend
-        socioeconomicData: JSON.stringify({
-            endereco: frontendBeneficiary.endereco,
-            bairro: frontendBeneficiary.bairro,
-            numero: frontendBeneficiary.numero,
-            complemento: frontendBeneficiary.complemento,
-            pontoReferencia: frontendBeneficiary.pontoReferencia
-        }),
+        socioeconomicData:  'MODIFICAR PARA APARECER NO FRONT',
         beneficiaryStatus: "PENDING", // Status padrão
         withdrawalLimit: frontendBeneficiary.withdrawalLimit
             ? parseInt(frontendBeneficiary.withdrawalLimit)
@@ -100,14 +90,7 @@ export const mapBeneficiaryToBackend = (frontendBeneficiary) => {
 }
 
 export const mapBeneficiaryFromBackend = (backendBeneficiary) => {
-    let socioeconomicData = {}
-    try {
-        socioeconomicData = JSON.parse(
-            backendBeneficiary.socioeconomicData || "{}"
-        )
-    } catch (e) {
-        console.warn("Erro ao parsear socioeconomicData:", e)
-    }
+
 
     return {
         id: backendBeneficiary.beneficiaryId,
@@ -115,16 +98,10 @@ export const mapBeneficiaryFromBackend = (backendBeneficiary) => {
         cpfCrnm: backendBeneficiary.cpf,
         nif: "", // Campo não disponível no backend atual
         telefoneCelular: backendBeneficiary.phone,
-        email: "", // Campo não disponível no backend atual
         withdrawalLimit: backendBeneficiary.withdrawalLimit || "",
         currentWithdrawalsThisMonth:
             backendBeneficiary.currentWithdrawalsThisMonth || 0,
         remainingWithdrawals: backendBeneficiary.remainingWithdrawals || 0,
-        endereco: socioeconomicData.endereco || "",
-        bairro: socioeconomicData.bairro || "",
-        numero: socioeconomicData.numero || "",
-        complemento: socioeconomicData.complemento || "",
-        pontoReferencia: socioeconomicData.pontoReferencia || "",
         status: backendBeneficiary.beneficiaryStatus
     }
 }

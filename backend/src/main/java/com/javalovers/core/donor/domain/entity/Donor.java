@@ -33,6 +33,9 @@ public class Donor implements SoftDeletable {
     @Column(name = "contact")
     private String contact;
 
+    @Column(name = "email", nullable = true)
+    private String email;
+
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 

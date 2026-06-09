@@ -18,11 +18,6 @@ const CadastroBeneficiario = () => {
     email: "",
     cpfCrnm: "",
     nif: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: "",
     withdrawalLimit: ""
   });
   const [fieldErrors, setFieldErrors] = useState({});
@@ -141,11 +136,6 @@ const CadastroBeneficiario = () => {
         email: "",
         cpfCrnm: "",
         nif: "",
-        endereco: "",
-        bairro: "",
-        numero: "",
-        complemento: "",
-        pontoReferencia: "",
         withdrawalLimit: ""
       });
       
@@ -249,63 +239,7 @@ const CadastroBeneficiario = () => {
 
             <hr className={styles.separador} />
 
-            {/* Linha Endereço, Número, Complemento */}
-            <div className={styles.formGroupFullWidth}> {/* Ocupa a largura total da linha */}
-              <label htmlFor="endereco"><b>Endereço*</b></label>
-              <input
-                id="endereco"
-                name="endereco"
-                value={form.endereco}
-                onChange={handleChange}
-                required
-                placeholder="Rua da Água"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="numero"><b>Número*</b></label>
-              <input
-                id="numero"
-                name="numero"
-                type="number"
-                value={form.numero}
-                onChange={handleChange}
-                required
-                placeholder="2015"
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="complemento"><b>Complemento</b></label> {/* Tornando Complemento opcional */}
-              <input
-                id="complemento"
-                name="complemento"
-                value={form.complemento}
-                onChange={handleChange}
-                placeholder="Ap 307"
-              />
-            </div>
 
-            {/* Linha Bairro, Ponto de Referência */}
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="bairro"><b>Bairro*</b></label>
-              <input
-                id="bairro"
-                name="bairro"
-                value={form.bairro}
-                onChange={handleChange}
-                required
-                placeholder="Centro"
-              />
-            </div>
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="pontoReferencia"><b>Ponto de referência</b></label> {/* Tornando Ponto de Referência opcional */}
-              <input
-                id="pontoReferencia"
-                name="pontoReferencia"
-                value={form.pontoReferencia}
-                onChange={handleChange}
-                placeholder="Em frente ao parque"
-              />
-            </div>
 
             <hr className={styles.separador} />
 

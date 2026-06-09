@@ -11,5 +11,7 @@ public class DonorUpdateMapper {
         donor.setName(donorFormDTO.name());
         donor.setCpfCnpj(donorFormDTO.cpfCnpj());
         donor.setContact(donorFormDTO.contact());
+        donor.setEmail(donorFormDTO.email());
+        
     }
 }
