@@ -14,12 +14,7 @@ public class DonorDTOMapper {
                 donor.getName(),
                 donor.getCpfCnpj(),
                 donor.getContact(),
-                donor.getEmail(),
-                donor.getStreetAddress(),
-                donor.getNumberAddress(),
-                donor.getDetailsAddress(),
-                donor.getNbAddress(),
-                donor.getCep()
+                donor.getEmail()
         );
     }
 }

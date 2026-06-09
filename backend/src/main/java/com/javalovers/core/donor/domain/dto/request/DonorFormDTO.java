@@ -16,22 +16,9 @@ public record DonorFormDTO(
         @NotBlank(message = "Contato é obrigatório")
         String contact,
 
-        @Email(message = "Email deve ter um formato válido")
-        String email,
+        @Email(message = "E-mail deve ter um formato válido")
+        String email
 
-        @Size(max = 160, message = "Rua deve ter no máximo 160 caracteres")
-        String streetAddress,
-
-        Integer numberAddress,
-
-        @Size(max = 160, message = "Complemento deve ter no máximo 160 caracteres")
-        String detailsAddress,
-
-        @Size(max = 160, message = "Bairro deve ter no máximo 160 caracteres")
-        String nbAddress,
-
-        @Pattern(regexp = "^([0-9]{8})?$", message = "CEP deve conter exatamente 8 dígitos numéricos")
-        String cep
 
 ) {
 }

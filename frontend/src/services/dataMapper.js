@@ -4,11 +4,7 @@ export const mapDonorToBackend = (frontendDonor) => {
         name: frontendDonor.nomeCompleto,
         cpfCnpj: frontendDonor.cpf,
         contact: frontendDonor.telefoneCelular, // Usando telefone como contato obrigatório do back-end
-        email: frontendDonor.email || null,
-        streetAddress: frontendDonor.endereco || null,
-        numberAddress: frontendDonor.numero ? parseInt(frontendDonor.numero, 10) : null,
-        detailsAddress: frontendDonor.complemento || null,
-        nbAddress: frontendDonor.bairro || null
+        email: frontendDonor.email || null
     }
 }
 
@@ -18,12 +14,7 @@ export const mapDonorFromBackend = (backendDonor) => {
         nomeCompleto: backendDonor.name,
         cpf: backendDonor.cpfCnpj,
         telefoneCelular: backendDonor.contact,
-        email: backendDonor.contact, // Assumindo que contact pode ser email
-        endereco: "", // Campos não disponíveis no backend atual
-        bairro: "",
-        numero: "",
-        complemento: "",
-        pontoReferencia: ""
+        email: backendDonor.email, // Assumindo que contact pode ser email
     }
 }
 

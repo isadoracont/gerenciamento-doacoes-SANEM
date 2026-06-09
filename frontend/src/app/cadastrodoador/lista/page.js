@@ -23,12 +23,7 @@ export default function ListaDoadores() {
     nomeCompleto: "",
     telefoneCelular: "",
     email: "",
-    cpf: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: ""
+    cpf: ""
   });
   const [formErrors, setFormErrors] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
@@ -37,12 +32,7 @@ export default function ListaDoadores() {
     nomeCompleto: "",
     telefoneCelular: "",
     email: "",
-    cpf: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: ""
+    cpf: ""
   });
   const [editFormErrors, setEditFormErrors] = useState({});
   const [editFieldErrors, setEditFieldErrors] = useState({});
@@ -82,12 +72,7 @@ export default function ListaDoadores() {
         nomeCompleto: mappedDonor.nomeCompleto || "",
         telefoneCelular: telefoneMascarado,
         email: mappedDonor.email || "",
-        cpf: cpfMascarado,
-        endereco: mappedDonor.endereco || "",
-        bairro: mappedDonor.bairro || "",
-        numero: mappedDonor.numero || "",
-        complemento: mappedDonor.complemento || "",
-        pontoReferencia: mappedDonor.pontoReferencia || ""
+        cpf: cpfMascarado
       });
       setEditFormErrors({});
       setEditFieldErrors({});
@@ -129,12 +114,7 @@ export default function ListaDoadores() {
       nomeCompleto: "",
       telefoneCelular: "",
       email: "",
-      cpf: "",
-      endereco: "",
-      bairro: "",
-      numero: "",
-      complemento: "",
-      pontoReferencia: ""
+      cpf: ""
     });
     setFormErrors({});
     setFieldErrors({});
@@ -201,9 +181,6 @@ export default function ListaDoadores() {
     else if (!validatePhone(formData.telefoneCelular).valid) errors.telefoneCelular = validatePhone(formData.telefoneCelular).message;
     if (!formData.cpf.trim()) errors.cpf = "CPF/CNPJ é obrigatório";
     else if (!validateCPForCNPJ(formData.cpf).valid) errors.cpf = validateCPForCNPJ(formData.cpf).message;
-    if (!formData.endereco.trim()) errors.endereco = "Endereço é obrigatório";
-    if (!formData.bairro.trim()) errors.bairro = "Bairro é obrigatório";
-    if (!formData.numero.trim()) errors.numero = "Número é obrigatório";
     return errors;
   };
 
@@ -232,12 +209,7 @@ export default function ListaDoadores() {
         nomeCompleto: "",
         telefoneCelular: "",
         email: "",
-        cpf: "",
-        endereco: "",
-        bairro: "",
-        numero: "",
-        complemento: "",
-        pontoReferencia: ""
+        cpf: ""
       });
       loadDataRaw();
     } catch (err) {
@@ -306,9 +278,6 @@ export default function ListaDoadores() {
     else if (!validatePhone(editFormData.telefoneCelular).valid) errors.telefoneCelular = validatePhone(editFormData.telefoneCelular).message;
     if (!editFormData.cpf.trim()) errors.cpf = "CPF/CNPJ é obrigatório";
     else if (!validateCPForCNPJ(editFormData.cpf).valid) errors.cpf = validateCPForCNPJ(editFormData.cpf).message;
-    if (!editFormData.endereco.trim()) errors.endereco = "Endereço é obrigatório";
-    if (!editFormData.bairro.trim()) errors.bairro = "Bairro é obrigatório";
-    if (!editFormData.numero.trim()) errors.numero = "Número é obrigatório";
     return errors;
   };
 
@@ -476,62 +445,7 @@ export default function ListaDoadores() {
                 {(formErrors.cpf || fieldErrors.cpf) && <span className={styles.errorText}>{formErrors.cpf || fieldErrors.cpf}</span>}
               </div>
 
-              <div className={styles.formGroup}>
-                <label>Endereço *</label>
-                <input
-                  type="text"
-                  name="endereco"
-                  value={formData.endereco}
-                  onChange={handleFieldChange}
-                  className={formErrors.endereco ? styles.inputError : ''}
-                />
-                {formErrors.endereco && <span className={styles.errorText}>{formErrors.endereco}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Número *</label>
-                <input
-                  type="text"
-                  name="numero"
-                  value={formData.numero}
-                  onChange={handleFieldChange}
-                  className={formErrors.numero ? styles.inputError : ''}
-                />
-                {formErrors.numero && <span className={styles.errorText}>{formErrors.numero}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Complemento</label>
-                <input
-                  type="text"
-                  name="complemento"
-                  value={formData.complemento}
-                  onChange={handleFieldChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Bairro *</label>
-                <input
-                  type="text"
-                  name="bairro"
-                  value={formData.bairro}
-                  onChange={handleFieldChange}
-                  className={formErrors.bairro ? styles.inputError : ''}
-                />
-                {formErrors.bairro && <span className={styles.errorText}>{formErrors.bairro}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Ponto de Referência</label>
-                <input
-                  type="text"
-                  name="pontoReferencia"
-                  value={formData.pontoReferencia}
-                  onChange={handleFieldChange}
-                />
-              </div>
-
+              
               <div className={styles.modalActions}>
                 <button
                   type="button"
@@ -614,61 +528,7 @@ export default function ListaDoadores() {
                 {(editFormErrors.cpf || editFieldErrors.cpf) && <span className={styles.errorText}>{editFormErrors.cpf || editFieldErrors.cpf}</span>}
               </div>
 
-              <div className={styles.formGroup}>
-                <label>Endereço *</label>
-                <input
-                  type="text"
-                  name="endereco"
-                  value={editFormData.endereco}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.endereco ? styles.inputError : ''}
-                />
-                {editFormErrors.endereco && <span className={styles.errorText}>{editFormErrors.endereco}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Número *</label>
-                <input
-                  type="text"
-                  name="numero"
-                  value={editFormData.numero}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.numero ? styles.inputError : ''}
-                />
-                {editFormErrors.numero && <span className={styles.errorText}>{editFormErrors.numero}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Complemento</label>
-                <input
-                  type="text"
-                  name="complemento"
-                  value={editFormData.complemento}
-                  onChange={handleEditFieldChange}
-                />
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Bairro *</label>
-                <input
-                  type="text"
-                  name="bairro"
-                  value={editFormData.bairro}
-                  onChange={handleEditFieldChange}
-                  className={editFormErrors.bairro ? styles.inputError : ''}
-                />
-                {editFormErrors.bairro && <span className={styles.errorText}>{editFormErrors.bairro}</span>}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Ponto de Referência</label>
-                <input
-                  type="text"
-                  name="pontoReferencia"
-                  value={editFormData.pontoReferencia}
-                  onChange={handleEditFieldChange}
-                />
-              </div>
+            
 
               <div className={styles.modalActions}>
                 <button

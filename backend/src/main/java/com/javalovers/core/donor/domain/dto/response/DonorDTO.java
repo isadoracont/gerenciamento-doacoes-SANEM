@@ -5,11 +5,6 @@ public record DonorDTO(
         String name,
         String cpfCnpj,
         String contact,
-        String email,
-        String streetAddress,
-        Integer numberAddress,
-        String detailsAddress,
-        String nbAddress,
-        String cep
+        String email
 ) {
 }

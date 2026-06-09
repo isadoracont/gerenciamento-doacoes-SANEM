@@ -12,10 +12,6 @@ public class DonorUpdateMapper {
         donor.setCpfCnpj(donorFormDTO.cpfCnpj());
         donor.setContact(donorFormDTO.contact());
         donor.setEmail(donorFormDTO.email());
-        donor.setStreetAddress(donorFormDTO.streetAddress());
-        donor.setNumberAddress(donorFormDTO.numberAddress());
-        donor.setDetailsAddress(donorFormDTO.detailsAddress());
-        donor.setNbAddress(donorFormDTO.nbAddress());
-        donor.setCep(donorFormDTO.cep());
+        
     }
 }
