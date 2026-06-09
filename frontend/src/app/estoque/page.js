@@ -16,8 +16,8 @@ export default function EstoquePage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [novoProduto, setNovoProduto] = useState({ nome: '', quantidade: '' });
-  const [editProduto, setEditProduto] = useState({ nome: '', quantidade: '' });
+  const [novoProduto, setNovoProduto] = useState({ nome: '', quantidade: '', tagCode: '' });
+  const [editProduto, setEditProduto] = useState({ nome: '', quantidade: '', tagCode: '' });
   const [editingItem, setEditingItem] = useState(null);
   const router = useRouter();
 
@@ -50,13 +50,13 @@ export default function EstoquePage() {
       const itemData = {
         description: novoProduto.nome || '',
         stockQuantity: Number(novoProduto.quantidade) || 0,
-        tagCode: null // Será gerado pelo backend se necessário
+        tagCode: novoProduto.tagCode?.trim() ? novoProduto.tagCode.trim() : null
       };
       
       await apiService.createItem(itemData);
       await loadDataRaw();
       
-      setNovoProduto({ nome: '', quantidade: '' });
+      setNovoProduto({ nome: '', quantidade: '', tagCode: '' });
       setShowAddModal(false);
       showNotification("Produto adicionado com sucesso!", "success");
     } catch (err) {
@@ -84,7 +84,8 @@ export default function EstoquePage() {
   function handleEditProduto(item) {
     setEditProduto({
       nome: item.nome || '',
-      quantidade: item.quantidade || ''
+      quantidade: item.quantidade || '',
+      tagCode: item.tagCode || ''
     });
     setEditingItem(item);
     setShowEditModal(true);
@@ -98,13 +99,14 @@ export default function EstoquePage() {
     try {
       const itemData = mapItemToBackend({
         nome: editProduto.nome || '',
-        quantidade: Number(editProduto.quantidade) || 0
+        quantidade: Number(editProduto.quantidade) || 0,
+        tagCode: editProduto.tagCode
       });
       
       await apiService.updateItem(editingItem.id, itemData);
       await loadDataRaw();
       
-      setEditProduto({ nome: '', quantidade: '' });
+      setEditProduto({ nome: '', quantidade: '', tagCode: '' });
       setShowEditModal(false);
       setEditingItem(null);
       showNotification("Produto atualizado com sucesso!", "success");
@@ -215,21 +217,22 @@ export default function EstoquePage() {
                   <th>ID</th>
                   <th>Nome</th>
                   <th>Quantidade</th>
+                  <th>Código/Tag</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className={styles.loadingMessage}>Carregando...</td>
+                    <td colSpan={5} className={styles.loadingMessage}>Carregando...</td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={4} className={styles.errorMessage}>{error}</td>
+                    <td colSpan={5} className={styles.errorMessage}>{error}</td>
                   </tr>
                 ) : mockEstoque.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className={styles.noDataMessage}>Nenhum produto cadastrado ainda.</td>
+                    <td colSpan={5} className={styles.noDataMessage}>Nenhum produto cadastrado ainda.</td>
                   </tr>
                 ) : (
                   mockEstoque.map(item => (
@@ -237,6 +240,13 @@ export default function EstoquePage() {
                       <td>{item.id}</td>
                       <td>{item.nome}</td>
                       <td>{item.quantidade}</td>
+                      <td>
+                        {item.tagCode ? (
+                          <span style={{ fontWeight: '500' }}>{item.tagCode}</span>
+                        ) : (
+                          <span style={{ color: '#999', fontStyle: 'italic' }}>Sem tag</span>
+                        )}
+                      </td>
                       <td className={styles.actionButtons}>
                         <button
                           className={styles.editButton}
@@ -290,6 +300,16 @@ export default function EstoquePage() {
                 />
               </div>
               <div className={styles.formGroup}>
+                <label htmlFor="tagCode">Código/Tag (Opcional)</label>
+                <input 
+                  id="tagCode"
+                  type="text"
+                  value={novoProduto.tagCode} 
+                  onChange={e => setNovoProduto({ ...novoProduto, tagCode: e.target.value })} 
+                  placeholder="Ex: PROD-ABC-123"
+                />
+              </div>
+              <div className={styles.formGroup}>
                 <label htmlFor="quantidade">Quantidade *</label>
                 <input 
                   id="quantidade"
@@ -335,6 +355,16 @@ export default function EstoquePage() {
                   required 
                   value={editProduto.nome} 
                   onChange={e => setEditProduto({ ...editProduto, nome: e.target.value })} 
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label htmlFor="editTagCode">Código/Tag (Opcional)</label>
+                <input 
+                  id="editTagCode"
+                  type="text"
+                  value={editProduto.tagCode} 
+                  onChange={e => setEditProduto({ ...editProduto, tagCode: e.target.value })} 
+                  placeholder="Deixe em branco para remover o código"
                 />
               </div>
               <div className={styles.formGroup}>
