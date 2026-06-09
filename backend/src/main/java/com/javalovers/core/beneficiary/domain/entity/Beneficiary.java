@@ -33,8 +33,6 @@ public class Beneficiary implements SoftDeletable {
     @Column(name = "cpf", unique = true)
     private String cpf;
 
-    @Column(name = "address")
-    private String address;
 
     @Column(name = "phone")
     private String phone;

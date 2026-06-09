@@ -32,11 +32,6 @@ const EditarBeneficiario = () => {
     email: "",
     cpfCrnm: "",
     nif: "",
-    endereco: "",
-    bairro: "",
-    numero: "",
-    complemento: "",
-    pontoReferencia: "",
     status: "PENDING",
     withdrawalLimit: ""
   });
@@ -61,11 +56,6 @@ const EditarBeneficiario = () => {
           email: mappedBeneficiary.email || "",
           cpfCrnm: cpfMascarado,
           nif: mappedBeneficiary.nif || "",
-          endereco: mappedBeneficiary.endereco || "",
-          bairro: mappedBeneficiary.bairro || "",
-          numero: mappedBeneficiary.numero || "",
-          complemento: mappedBeneficiary.complemento || "",
-          pontoReferencia: mappedBeneficiary.pontoReferencia || "",
           status: mappedBeneficiary.status || "PENDING",
           withdrawalLimit: mappedBeneficiary.withdrawalLimit || "",
           currentWithdrawalsThisMonth: mappedBeneficiary.currentWithdrawalsThisMonth || 0
@@ -226,13 +216,7 @@ const EditarBeneficiario = () => {
         fullName: form.nomeCompleto,
         cpf: cpfCrnmLimpo || nifLimpo,
         phone: phoneCleaned,
-        socioeconomicData: JSON.stringify({
-          endereco: form.endereco,
-          bairro: form.bairro,
-          numero: form.numero,
-          complemento: form.complemento,
-          pontoReferencia: form.pontoReferencia,
-        }),
+        socioeconomicData: 'MODIFICAR PARA APARECER NO FRONT',
         beneficiaryStatus: form.status || 'PENDING',
         withdrawalLimit: form.withdrawalLimit ? parseInt(form.withdrawalLimit) : null
       };
@@ -402,65 +386,6 @@ const EditarBeneficiario = () => {
             </div>
 
             <hr className={styles.separador} />
-
-            {/* Linha Endereço, Número, Complemento */}
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="endereco"><b>Endereço*</b></label>
-              <input 
-                id="endereco"
-                name="endereco" 
-                value={form.endereco} 
-                onChange={handleChange} 
-                required 
-                placeholder="Rua da Água" 
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="numero"><b>Número*</b></label>
-              <input 
-                id="numero"
-                name="numero" 
-                type="number" 
-                value={form.numero} 
-                onChange={handleChange} 
-                required 
-                placeholder="2015" 
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="complemento"><b>Complemento</b></label>
-              <input 
-                id="complemento"
-                name="complemento" 
-                value={form.complemento} 
-                onChange={handleChange} 
-                placeholder="Ap 307" 
-              />
-            </div>
-
-            {/* Linha Bairro, Ponto de Referência */}
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="bairro"><b>Bairro*</b></label>
-              <input 
-                id="bairro"
-                name="bairro" 
-                value={form.bairro} 
-                onChange={handleChange} 
-                required 
-                placeholder="Centro" 
-              />
-            </div>
-            <div className={styles.formGroupFullWidth}>
-              <label htmlFor="pontoReferencia"><b>Ponto de referência</b></label>
-              <input 
-                id="pontoReferencia"
-                name="pontoReferencia" 
-                value={form.pontoReferencia} 
-                onChange={handleChange} 
-                placeholder="Em frente ao parque" 
-              />
-            </div>
-
             <hr className={styles.separador} />
 
             <div className={styles.formGroup}>
