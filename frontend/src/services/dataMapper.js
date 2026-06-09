@@ -26,7 +26,7 @@ export const mapItemToBackend = (frontendItem) => {
     return {
         description: frontendItem.nome || frontendItem.descricao || "",
         stockQuantity: frontendItem.quantidade || 0,
-        tagCode: frontendItem.tagCode || null
+        tagCode: frontendItem.tagCode?.trim() ? frontendItem.tagCode.trim() : null
     }
 }
 
