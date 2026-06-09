@@ -2,6 +2,8 @@ package com.javalovers.core.withdrawal.service;
 
 import com.javalovers.common.specification.SearchCriteria;
 import com.javalovers.common.specification.SpecificationHelper;
+import com.javalovers.core.inventory.service.InventoryService;
+import com.javalovers.core.inventory.domain.enums.TransactionType;
 import com.javalovers.core.appuser.domain.entity.AppUser;
 import com.javalovers.core.beneficiary.domain.entity.Beneficiary;
 import com.javalovers.core.withdrawal.domain.dto.request.WithdrawalFilterDTO;
@@ -45,6 +47,7 @@ public class WithdrawalService {
     private final BeneficiaryService beneficiaryService;
     private final ItemService itemService;
     private final ItemWithdrawnRepository itemWithdrawnRepository;
+    private final InventoryService inventoryService;
     private final EntityManager entityManager;
 
     public Withdrawal generateWithdrawal(WithdrawalFormDTO withdrawalFormDTO, Beneficiary beneficiary, AppUser attendantUser) {
@@ -69,9 +72,6 @@ public class WithdrawalService {
         if (withdrawalFormDTO != null && withdrawalFormDTO.items() != null && !withdrawalFormDTO.items().isEmpty()) {
             processWithdrawalItems(withdrawal, withdrawalFormDTO.items());
         }
-        
-        // Atualizar contador de retiradas do beneficiário
-        updateBeneficiaryWithdrawalCount(withdrawal, withdrawalFormDTO);
     }
 
     @Transactional
@@ -80,27 +80,19 @@ public class WithdrawalService {
         validateWithdrawalLimit(withdrawal);
 
         withdrawalRepository.save(withdrawal);
-        
-        // Atualizar contador de retiradas do beneficiário (sem DTO, calcula do withdrawal salvo)
-        updateBeneficiaryWithdrawalCount(withdrawal, null);
     }
 
     private void processWithdrawalItems(Withdrawal withdrawal, List<WithdrawalFormDTO.WithdrawalItemDTO> items) {
         for (WithdrawalFormDTO.WithdrawalItemDTO itemDTO : items) {
             Item item = itemService.getOrThrowException(itemDTO.itemId());
-            
-            // Validar estoque disponível
-            if (item.getStockQuantity() < itemDTO.quantity()) {
-                throw new IllegalStateException(
-                    String.format("Estoque insuficiente para o item '%s'. Disponível: %d, Solicitado: %d",
-                        item.getDescription(), item.getStockQuantity(), itemDTO.quantity())
-                );
-            }
-            
-            // Decrementar estoque
-            item.setStockQuantity(item.getStockQuantity() - itemDTO.quantity());
-            itemService.save(item);
-            
+
+            inventoryService.processTransaction(
+                item, 
+                (long) itemDTO.quantity(), 
+                TransactionType.WITHDRAWAL_OUT, 
+                withdrawal.getWithdrawalId()
+            );
+
             // Criar registro de item retirado
             ItemWithdrawn itemWithdrawn = new ItemWithdrawn();
             itemWithdrawn.setWithdrawal(withdrawal);
@@ -127,34 +119,22 @@ public class WithdrawalService {
     }
 
     public void validateWithdrawalLimit(Withdrawal withdrawal, List<WithdrawalFormDTO.WithdrawalItemDTO> items) {
-        if (withdrawal.getBeneficiary() == null) {
-            return;
-        }
+        if (withdrawal.getBeneficiary() == null) return;
 
         Long beneficiaryId = withdrawal.getBeneficiary().getBeneficiaryId();
         var beneficiary = beneficiaryService.getOrThrowException(beneficiaryId);
-        
-        // Usar limite do beneficiário se configurado, senão usar limite global
+
         Integer monthlyLimit = beneficiary.getWithdrawalLimit() != null 
             ? beneficiary.getWithdrawalLimit() 
             : limitConfigService.getActiveConfig().getMonthlyItemLimit();
 
-        // Se não houver limite configurado, não validar
-        if (monthlyLimit == null || monthlyLimit <= 0) {
-            return;
-        }
+        if (monthlyLimit == null || monthlyLimit <= 0) return;
 
-        // Usar contador do beneficiário ou calcular do banco
-        int currentWithdrawals = beneficiary.getCurrentWithdrawalsThisMonth() != null 
-            ? beneficiary.getCurrentWithdrawalsThisMonth() 
-            : calculateItemsWithdrawnThisMonth(beneficiaryId);
+        int currentWithdrawals = calculateItemsWithdrawnThisMonth(beneficiaryId);
 
-        // Calcular quantidade de itens nesta retirada
         int itemsInThisWithdrawal = 0;
         if (items != null && !items.isEmpty()) {
-            itemsInThisWithdrawal = items.stream()
-                .mapToInt(WithdrawalFormDTO.WithdrawalItemDTO::quantity)
-                .sum();
+            itemsInThisWithdrawal = items.stream().mapToInt(WithdrawalFormDTO.WithdrawalItemDTO::quantity).sum();
         } else {
             itemsInThisWithdrawal = calculateItemsInWithdrawal(withdrawal);
         }
@@ -165,33 +145,6 @@ public class WithdrawalService {
                     currentWithdrawals, monthlyLimit, itemsInThisWithdrawal)
             );
         }
-    }
-
-    private void updateBeneficiaryWithdrawalCount(Withdrawal withdrawal, WithdrawalFormDTO withdrawalFormDTO) {
-        if (withdrawal.getBeneficiary() == null) {
-            return;
-        }
-
-        Long beneficiaryId = withdrawal.getBeneficiary().getBeneficiaryId();
-        var beneficiary = beneficiaryService.getOrThrowException(beneficiaryId);
-        
-        // Calcular quantidade de itens nesta retirada
-        int itemsInThisWithdrawal = 0;
-        if (withdrawalFormDTO != null && withdrawalFormDTO.items() != null && !withdrawalFormDTO.items().isEmpty()) {
-            itemsInThisWithdrawal = withdrawalFormDTO.items().stream()
-                .mapToInt(WithdrawalFormDTO.WithdrawalItemDTO::quantity)
-                .sum();
-        } else {
-            itemsInThisWithdrawal = calculateItemsInWithdrawal(withdrawal);
-        }
-        
-        // Atualizar contador
-        int currentCount = beneficiary.getCurrentWithdrawalsThisMonth() != null 
-            ? beneficiary.getCurrentWithdrawalsThisMonth() 
-            : 0;
-        
-        beneficiary.setCurrentWithdrawalsThisMonth(currentCount + itemsInThisWithdrawal);
-        beneficiaryService.save(beneficiary);
     }
 
     private int calculateItemsWithdrawnThisMonth(Long beneficiaryId) {
@@ -267,34 +220,24 @@ public class WithdrawalService {
     public void delete(Withdrawal withdrawal) {
         Long withdrawalId = withdrawal.getWithdrawalId();
 
-        List<ItemWithdrawn> itemsWithdrawn = itemWithdrawnRepository.findByWithdrawal_WithdrawalId(withdrawalId);
+        List<ItemWithdrawn> itemsWithdrawn = entityManager.createQuery(
+            "SELECT iw FROM ItemWithdrawn iw WHERE iw.withdrawal.withdrawalId = :id AND iw.deletedAt IS NULL", 
+            ItemWithdrawn.class
+        ).setParameter("id", withdrawalId).getResultList();
 
-        if (itemsWithdrawn != null && !itemsWithdrawn.isEmpty()) {
-            int itensDevolvidosAoLimite = 0;
-
-            for (ItemWithdrawn itemWithdrawn : itemsWithdrawn) {
-                Item item = itemWithdrawn.getItem();
-                
-                Long estoqueAtual = item.getStockQuantity() != null ? item.getStockQuantity() : 0L;
-                item.setStockQuantity(estoqueAtual + itemWithdrawn.getQuantity().longValue());
-                itemService.save(item);
-                
-                itensDevolvidosAoLimite += itemWithdrawn.getQuantity();
-
-                itemWithdrawn.softDelete();
-                itemWithdrawnRepository.save(itemWithdrawn);
-            }
-
-            if (withdrawal.getBeneficiary() != null) {
-                Beneficiary beneficiary = withdrawal.getBeneficiary();
-                if (beneficiary.getCurrentWithdrawalsThisMonth() != null) {
-                    int novoValor = Math.max(0, beneficiary.getCurrentWithdrawalsThisMonth() - itensDevolvidosAoLimite);
-                    beneficiary.setCurrentWithdrawalsThisMonth(novoValor);
-                    beneficiaryService.save(beneficiary);
-                }
-            }
+        for (ItemWithdrawn iw : itemsWithdrawn) {
+            inventoryService.processTransaction(
+                iw.getItem(), 
+                (long) iw.getQuantity(), 
+                TransactionType.WITHDRAWAL_REVERSAL, 
+                withdrawalId
+            );
+            
+            iw.softDelete();
+            itemWithdrawnRepository.save(iw);
         }
 
+        // Soft delete do withdrawal
         withdrawal.softDelete();
         withdrawalRepository.save(withdrawal);
     }

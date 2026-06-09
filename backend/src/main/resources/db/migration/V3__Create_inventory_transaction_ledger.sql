@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS inventory_transaction (
+    transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    item_id INT NOT NULL,
+    transaction_type ENUM('DONATION_IN', 'DONATION_REVERSAL', 'WITHDRAWAL_OUT', 'WITHDRAWAL_REVERSAL', 'MANUAL_ADJUSTMENT_IN', 'MANUAL_ADJUSTMENT_OUT') NOT NULL,
+    quantity INT NOT NULL,
+    reference_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_transaction_item FOREIGN KEY (item_id) REFERENCES item(item_id)
+        ON UPDATE RESTRICT ON DELETE RESTRICT,
+    CHECK (quantity > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

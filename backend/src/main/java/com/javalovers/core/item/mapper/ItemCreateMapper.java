@@ -10,13 +10,13 @@ public class ItemCreateMapper {
     public Item convert(ItemFormDTO itemFormDTO){
         Item item = new Item();
         item.setDescription(itemFormDTO.description());
-        item.setStockQuantity(itemFormDTO.stockQuantity());
+        item.setStockQuantity(0L); 
         String tag = itemFormDTO.tagCode();
         if (tag != null && tag.trim().isEmpty()) {
             tag = null;
         }
         item.setTagCode(tag);
-        
+
         return item;
     }
 }

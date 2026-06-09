@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.MethodArgumentTypeMismatchException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -88,6 +88,17 @@ public class GlobalExceptionHandler {
         ApiErrorResponse response = new ApiErrorResponse(
             "Parâmetro obrigatório ausente",
             String.format("O parâmetro '%s' é obrigatório.", ex.getParameterName()),
+            HttpStatus.BAD_REQUEST.value()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        logger.warn("IllegalStateException: ", ex);
+        ApiErrorResponse response = new ApiErrorResponse(
+            "Regra de negócio violada",
+            ex.getMessage(),
             HttpStatus.BAD_REQUEST.value()
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

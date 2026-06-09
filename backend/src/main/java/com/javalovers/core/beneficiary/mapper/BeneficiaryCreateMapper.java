@@ -15,7 +15,6 @@ public class BeneficiaryCreateMapper {
         beneficiary.setSocioeconomicData(beneficiaryFormDTO.socioeconomicData());
         beneficiary.setBeneficiaryStatus(beneficiaryFormDTO.beneficiaryStatus());
         beneficiary.setWithdrawalLimit(beneficiaryFormDTO.withdrawalLimit());
-        beneficiary.setCurrentWithdrawalsThisMonth(0); // Inicializar com 0
 
         return beneficiary;
     }
