@@ -1,8 +1,8 @@
 package com.javalovers.core.donor.domain.dto.request;
 
+import com.javalovers.common.validation.ValidCpfCnpj;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record DonorFormDTO(
@@ -10,7 +10,7 @@ public record DonorFormDTO(
         @Size(min = 3, max = 255, message = "Nome deve ter entre 3 e 255 caracteres")
         String name,
         
-        @Pattern(regexp = "^([0-9]{11}|[0-9]{14})$", message = "CPF/CNPJ deve conter 11 dígitos (CPF) ou 14 dígitos (CNPJ)")
+        @ValidCpfCnpj(message = "CPF/CNPJ inválido")
         String cpfCnpj,
         
         @NotBlank(message = "Contato é obrigatório")

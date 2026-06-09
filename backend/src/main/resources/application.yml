@@ -38,3 +38,4 @@ logging:
   level:
     com.javalovers: DEBUG
     org.springframework.security: DEBUG
+
