@@ -16,6 +16,7 @@ import com.javalovers.core.withdrawal.mapper.WithdrawalUpdateMapper;
 import com.javalovers.core.withdrawal.repository.WithdrawalRepository;
 import com.javalovers.core.withdrawal.specification.WithdrawalSpecification;
 import com.javalovers.core.withdrawallimit.service.WithdrawalLimitConfigService;
+import com.javalovers.core.withdrawalreset.service.WithdrawalLimitResetService;
 import com.javalovers.core.beneficiary.service.BeneficiaryService;
 import com.javalovers.core.beneficiarystatus.BeneficiaryStatus;
 import com.javalovers.core.item.service.ItemService;
@@ -47,6 +48,7 @@ public class WithdrawalService {
     private final BeneficiaryService beneficiaryService;
     private final ItemService itemService;
     private final ItemWithdrawnRepository itemWithdrawnRepository;
+    private final WithdrawalLimitResetService withdrawalLimitResetService;
     private final InventoryService inventoryService;
     private final EntityManager entityManager;
 
@@ -147,6 +149,12 @@ public class WithdrawalService {
         }
     }
 
+    @Transactional
+    public void resetMonthlyLimit(Long beneficiaryId) {
+        beneficiaryService.getOrThrowException(beneficiaryId);
+        withdrawalLimitResetService.resetLimitForBeneficiary(beneficiaryId);
+    }
+
     private int calculateItemsWithdrawnThisMonth(Long beneficiaryId) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.DAY_OF_MONTH, 1);
@@ -154,19 +162,31 @@ public class WithdrawalService {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
+
         Date startOfMonth = calendar.getTime();
 
+        Date lastManualReset = withdrawalLimitResetService
+                .getLastResetDate(beneficiaryId)
+                .orElse(null);
+
+        Date startDate = startOfMonth;
+
+        if (lastManualReset != null && lastManualReset.after(startOfMonth)) {
+            startDate = lastManualReset;
+        }
+
         Query query = entityManager.createNativeQuery(
-            "SELECT COALESCE(SUM(iw.quantity), 0) " +
-            "FROM item_withdrawn iw " +
-            "INNER JOIN withdrawal w ON iw.withdrawal_id = w.withdrawal_id " +
-            "WHERE w.beneficiary_id = ? " +
-            "AND w.withdrawal_date >= ? " +
-            "AND w.deleted_at IS NULL " +
-            "AND iw.deleted_at IS NULL"
+                "SELECT COALESCE(SUM(iw.quantity), 0) " +
+                "FROM item_withdrawn iw " +
+                "INNER JOIN withdrawal w ON iw.withdrawal_id = w.withdrawal_id " +
+                "WHERE w.beneficiary_id = ? " +
+                "AND w.withdrawal_date >= ? " +
+                "AND w.deleted_at IS NULL " +
+                "AND iw.deleted_at IS NULL"
         );
+
         query.setParameter(1, beneficiaryId);
-        query.setParameter(2, startOfMonth);
+        query.setParameter(2, startDate);
 
         Object result = query.getSingleResult();
         return ((Number) result).intValue();

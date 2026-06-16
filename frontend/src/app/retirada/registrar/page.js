@@ -65,6 +65,33 @@ export default function RegistrarRetiradaPage() {
     }
   };
 
+  const handleResetLimit = async () => {
+    if (!selectedBeneficiary) {
+      showNotification("Selecione um beneficiário antes de resetar o limite", "error");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Deseja realmente zerar o limite mensal de ${selectedBeneficiary.nomeCompleto}?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setLoading(true);
+
+      await apiService.resetWithdrawalLimit(selectedBeneficiary.id);
+      await loadLimitInfo(selectedBeneficiary.id);
+
+      showNotification("Limite mensal zerado com sucesso!", "success");
+    } catch (err) {
+      console.error("Erro ao resetar limite:", err);
+      showNotification(err.message || "Erro ao resetar limite mensal", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredBeneficiaries = beneficiaries.filter(b =>
     b.nomeCompleto?.toLowerCase().includes(searchBeneficiary.toLowerCase()) ||
     b.cpfCrnm?.includes(searchBeneficiary)
@@ -219,7 +246,14 @@ export default function RegistrarRetiradaPage() {
                   {limitInfo && (
                     <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px' }}>
                       <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
-                      <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
+                      <div><strong>Restante TESTE:</strong> {limitInfo.remainingItems || 0} itens</div>
+                      <button type="button" onClick={handleResetLimit} disabled={loading} style={{
+                        marginTop: '10px', padding: '8px 12px', border: 'none', borderRadius: '5px',
+                        backgroundColor: '#007bff', color: '#fff', fontWeight: '600', 
+                        cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1
+                        }}>
+                          Zerar Limite Mensal
+                      </button>
                       {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
                         <div style={{ marginTop: '5px', color: '#dc3545', fontWeight: '600' }}>
                           Atenção: O total de itens selecionados ({totalItems}) excede o limite restante ({limitInfo.remainingItems})
