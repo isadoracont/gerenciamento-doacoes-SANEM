@@ -1,0 +1,396 @@
+/* relatorios.module.css */
+
+.containerGeral {
+  display: flex;
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.pageContent {
+  flex: 1;
+  margin-left: 220px;
+  padding: 32px 36px 48px;
+  max-width: 1400px;
+
+  margin-top: 70px;
+}
+
+/* ── Header ────────────────────────────────────── */
+.pageHeader {
+  margin-bottom: 28px;
+}
+
+.titulo {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #2e2e2e;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.decoracao {
+  width: 48px;
+  height: 4px;
+  background: #4CAF50;
+  border-radius: 2px;
+}
+
+/* ── Nav de relatórios ─────────────────────────── */
+.relatoriosNav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.navCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 38px 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+  position: relative;
+  min-width: 140px;
+  text-align: left;
+}
+
+.navCard:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.13);
+  transform: translateY(-1px);
+}
+
+.navCardLabel {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: #2e2e2e;
+}
+
+.navCardDesc {
+  font-size: 0.78rem;
+  color: #999;
+  line-height: 1.3;
+}
+
+.navCardArrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ccc;
+  font-size: 0.8rem;
+  transition: color 0.15s, right 0.15s;
+}
+
+.navCard:hover .navCardArrow {
+  color: #4CAF50;
+  right: 9px;
+}
+
+/* ── Divisor e título de seção ─────────────────── */
+.divider {
+  border: none;
+  border-top: 1.5px solid #e5e7eb;
+  margin: 0 0 28px;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 20px;
+}
+
+/* ── Cards ─────────────────────────────────────── */
+.cardsRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: nowrap;
+}
+
+.card {
+  flex: 1 1 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+}
+
+.cardIcon {
+  width: 46px;
+  height: 46px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cardValue {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cardLabel {
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* skeleton de carregamento */
+.skeleton {
+  display: inline-block;
+  width: 52px;
+  height: 26px;
+  background: linear-gradient(90deg, #ececec 25%, #f5f5f5 50%, #ececec 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 5px;
+  vertical-align: middle;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Gráficos ──────────────────────────────────── */
+.chartsRow {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.chartBox {
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+  flex: 2 1 380px; /* linha ocupa mais espaço */
+  min-width: 0;
+  position: relative;
+}
+
+/* pizza menor */
+.chartBox:last-child {
+  flex: 1 1 260px;
+}
+
+.chartTitle {
+  font-size: 0.97rem;
+  font-weight: 700;
+  color: #2e2e2e;
+  margin: 0 0 2px;
+}
+
+.chartSub {
+  font-size: 0.78rem;
+  color: #bbb;
+  margin: 0 0 14px;
+}
+
+.chartLoading,
+.chartEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* legenda do gráfico de linha */
+.chartLegend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: #555;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* tooltip gráfico de linha */
+.tooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  pointer-events: none;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.tooltipDate {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+}
+
+.tooltipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Gráfico de pizza ──────────────────────────── */
+.pieWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.pieLegend {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pieLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+}
+
+.pieDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pieName {
+  flex: 1;
+  color: #666;
+}
+
+.pieValue {
+  font-weight: 700;
+  color: #222;
+}
+
+/* ── Responsivo ────────────────────────────────── */
+@media (max-width: 1100px) {
+  .pageContent {
+    margin-left: 0;
+    padding: 24px 20px 40px;
+  }
+}
+
+@media (max-width: 900px) {
+  .cardsRow {
+    flex-wrap: wrap;
+  }
+
+  .card {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .chartsRow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .pageContent {
+    padding: 16px 12px 36px;
+  }
+
+  .titulo {
+    font-size: 1.4rem;
+  }
+
+  .relatoriosNav {
+    gap: 8px;
+  }
+
+  .navCard {
+    min-width: 110px;
+    padding: 12px 30px 12px 12px;
+  }
+
+  .navCardDesc {
+    display: none;
+  }
+
+  .cardsRow {
+    gap: 10px;
+  }
+
+  .card {
+    flex: 1 1 calc(50% - 5px);
+    padding: 14px 10px;
+    gap: 10px;
+  }
+
+  .cardIcon {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .cardValue {
+    font-size: 1.2rem;
+  }
+
+  .cardLabel {
+    font-size: 0.72rem;
+  }
+
+  .chartBox {
+    padding: 16px 12px 14px;
+  }
+}
