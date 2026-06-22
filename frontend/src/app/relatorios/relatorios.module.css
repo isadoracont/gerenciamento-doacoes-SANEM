@@ -60,8 +60,9 @@
 }
 
 .navCard:hover {
-  border-color: #4CAF50;
-  box-shadow: 0 2px 12px rgba(76, 175, 80, 0.13);
+  background: var(--theme-bg, #f7f8fa);
+  border-color: var(--theme-color, #ccc);
+  box-shadow: 0 2px 12px var(--theme-shadow, rgba(0,0,0,0.1));
   transform: translateY(-1px);
 }
 
@@ -88,7 +89,7 @@
 }
 
 .navCard:hover .navCardArrow {
-  color: #4CAF50;
+  color: var(--theme-color, #ccc);
   right: 9px;
 }
 
@@ -392,5 +393,119 @@
 
   .chartBox {
     padding: 16px 12px 14px;
+  }
+}
+
+/* ── Botão de Imprimir ─────────────────────────── */
+.subHeaderContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 28px;
+}
+
+.printButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #4CAF50;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  height: fit-content;
+}
+
+.printButton:hover {
+  background: #43a047;
+  transform: translateY(-1px);
+}
+
+/* ── Cabeçalho de Impressão (Oculto na tela) ───── */
+.printHeader {
+  display: none; /* Escondido por padrão na tela */
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 20px;
+}
+
+.printLogo {
+  width: 90px;
+  height: auto;
+  margin-bottom: 12px;
+}
+
+.printTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2e2e2e;
+  margin: 0 0 4px;
+}
+
+.printDate {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* ── Ocultar elementos ao lado do RelatoriosNav ── */
+.headerAcoes {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+/* ── Estilos Específicos para Impressão ────────── */
+@media print {
+  .hideOnPrint {
+    display: none !important;
+  }
+
+  /* Oculta menus externos (Sidebar / Menubar) */
+  .containerGeral > :not(.pageContent) {
+    display: none !important;
+  }
+
+  /* Oculta o título master, os cards de abas, a linha divisória e o botão de imprimir */
+  .pageHeader:first-of-type,
+  .relatoriosNav,
+  .divider,
+  .printButton {
+    display: none !important;
+  }
+
+  /* Torna o cabeçalho oficial de impressão visível */
+  .printHeader {
+    display: block !important;
+  }
+
+  /* Redefine os containers para ocuparem a folha A4 completamente */
+  .containerGeral {
+    background: #fff !important;
+    display: block !important;
+  }
+
+  .pageContent {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    margin-top: 0 !important; /* Remove o recuo superior da tela */
+  }
+
+  /* Força a aplicação correta de backgrounds em gráficos e cartões */
+  .containerGeral * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Evita quebras de linha feias no meio de tabelas ou cards */
+  .card, .chartBox, .containerGeral tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }
