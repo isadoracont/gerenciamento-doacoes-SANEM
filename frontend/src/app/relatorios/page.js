@@ -54,9 +54,11 @@ function LineChart({ data, keys, colors, height = 220 }) {
     y: toY(maxVal * f),
   }));
 
-  const xInterval = Math.max(1, Math.floor(data.length / 7));
-  const xLabels = data
-    .map((d, i) => ({ label: d.dia, x: toX(i), show: i % xInterval === 0 || i === data.length - 1 }));
+  const xLabels = data.map((d, i) => {
+    const distanceToLastDay = data.length - 1 - i;
+    const show = distanceToLastDay % 5 === 0;
+    return { label: d.dia, x: toX(i), show };
+  });
 
   const polyline = (key) =>
     data.map((d, i) => `${toX(i)},${toY(d[key] ?? 0)}`).join(" ");
@@ -75,8 +77,9 @@ function LineChart({ data, keys, colors, height = 220 }) {
   return (
     <div ref={containerRef} style={{ width: "100%", position: "relative" }}>
       <svg
-        width={width}
+        width="100%"
         height={height}
+        viewBox={`0 0 ${width} ${height}`} 
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setTip(null)}
         style={{ display: "block", cursor: "crosshair" }}
