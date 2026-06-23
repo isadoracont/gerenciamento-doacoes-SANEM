@@ -400,6 +400,12 @@ class ApiService {
             method: "DELETE"
         })
     }
+
+    async resetWithdrawalLimit(beneficiaryId) {
+        return this.request(`/withdrawal/beneficiary/${beneficiaryId}/reset-limit`, {
+            method: "PATCH",
+        });
+    }
 }
 
 // Instância singleton do serviço

@@ -104,6 +104,12 @@ public class WithdrawalController {
         return ResponseEntity.ok(limitInfo);
     }
 
+    @PatchMapping("/beneficiary/{beneficiaryId}/reset-limit")
+    public ResponseEntity<Void> resetMonthlyLimit(@PathVariable Long beneficiaryId) {
+        withdrawalService.resetMonthlyLimit(beneficiaryId);
+        return ResponseEntity.noContent().build();
+    }
+
     public record LimitInfoDTO(
             int itemsWithdrawnThisMonth,
             int monthlyLimit,
