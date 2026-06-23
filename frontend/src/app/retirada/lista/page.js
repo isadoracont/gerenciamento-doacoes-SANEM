@@ -407,11 +407,7 @@ export default function ListaRetiradasPage() {
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
                         <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
-                        <button type="button" onClick={handleResetLimit} disabled={loading} style={{
-                          marginTop: '10px', padding: '8px 12px', border: 'none', borderRadius: '5px',
-                          backgroundColor: '#007bff', color: '#fff', fontWeight: '600',
-                          cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1
-                        }}>
+                        <button type="button" onClick={handleResetLimit} disabled={submitting} className={styles.submitButton}>
                           Zerar Limite Mensal
                         </button>
                         {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
