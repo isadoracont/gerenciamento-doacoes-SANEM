@@ -27,6 +27,10 @@ export default function ListaRetiradasPage() {
   const [submitting, setSubmitting] = useState(false);
   const [limitInfo, setLimitInfo] = useState(null);
 
+  const currentUser = authService.getUser();
+
+  const isAdmin = currentUser?.role?.toUpperCase() === "ADMINISTRATOR";
+
   useEffect(() => {
     loadWithdrawals();
   }, []);
@@ -407,9 +411,11 @@ export default function ListaRetiradasPage() {
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
                         <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
-                        <button type="button" onClick={handleResetLimit} disabled={submitting} className={styles.submitButton}>
-                          Zerar Limite Mensal
-                        </button>
+                        <span title={!isAdmin ? "Apenas administradores podem zerar o limite mensal" : ""} style={{ display: 'inline-block', marginTop: '5px' }}>
+                          <button type="button" onClick={handleResetLimit} disabled={!isAdmin || submitting} className={styles.submitButton}>
+                            Zerar Limite Mensal
+                          </button>
+                        </span>
                         {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
                           <div style={{ marginTop: '5px', color: '#dc3545', fontWeight: '600' }}>
                             Atenção: O total de itens selecionados ({totalItems}) excede o limite restante ({limitInfo.remainingItems})
