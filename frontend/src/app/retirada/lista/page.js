@@ -49,14 +49,14 @@ export default function ListaRetiradasPage() {
       setLoading(true);
       const data = await apiService.getWithdrawals();
       const withdrawalsArray = Array.isArray(data) ? data : [];
-      
+
       // Ordenar do mais recente para o mais antigo por data de retirada
       const sortedWithdrawals = withdrawalsArray.sort((a, b) => {
         const dateA = a.withdrawalDate ? new Date(a.withdrawalDate).getTime() : 0;
         const dateB = b.withdrawalDate ? new Date(b.withdrawalDate).getTime() : 0;
         return dateB - dateA; // Ordem decrescente (mais recente primeiro)
       });
-      
+
       setWithdrawals(sortedWithdrawals);
     } catch (err) {
       console.error("Erro ao carregar retiradas:", err);
@@ -166,9 +166,45 @@ export default function ListaRetiradasPage() {
     setSelectedItems(selectedItems.filter(si => si.itemId !== itemId));
   };
 
+  const handleResetLimit = async () => {
+    if (!selectedBeneficiary) {
+      showNotification(
+        "Selecione um beneficiário antes de resetar o limite",
+        "error"
+      );
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Deseja realmente zerar o limite mensal de ${selectedBeneficiary.nomeCompleto}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      await apiService.resetWithdrawalLimit(selectedBeneficiary.id);
+      await loadLimitInfo(selectedBeneficiary.id);
+
+      showNotification("Limite mensal zerado com sucesso!", "success");
+    } catch (err) {
+      console.error("Erro ao resetar limite:", err);
+
+      showNotification(
+        err.message || "Erro ao resetar limite mensal",
+        "error"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSubmitWithdrawal = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedBeneficiary) {
       showNotification("Selecione um beneficiário", "error");
       return;
@@ -201,7 +237,7 @@ export default function ListaRetiradasPage() {
 
     try {
       setSubmitting(true);
-      
+
       const withdrawalData = {
         withdrawalDate: new Date().toISOString(),
         beneficiaryId: selectedBeneficiary.id,
@@ -234,13 +270,13 @@ export default function ListaRetiradasPage() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'N/A';
-      
+
       const day = String(date.getDate()).padStart(2, '0');
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      
+
       return `${day}/${month}/${year}, ${hours}:${minutes}`;
     } catch (e) {
       console.error('Erro ao formatar data:', e);
@@ -371,6 +407,13 @@ export default function ListaRetiradasPage() {
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
                         <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
+                        <button type="button" onClick={handleResetLimit} disabled={loading} style={{
+                          marginTop: '10px', padding: '8px 12px', border: 'none', borderRadius: '5px',
+                          backgroundColor: '#007bff', color: '#fff', fontWeight: '600',
+                          cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.6 : 1
+                        }}>
+                          Zerar Limite Mensal
+                        </button>
                         {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
                           <div style={{ marginTop: '5px', color: '#dc3545', fontWeight: '600' }}>
                             Atenção: O total de itens selecionados ({totalItems}) excede o limite restante ({limitInfo.remainingItems})
