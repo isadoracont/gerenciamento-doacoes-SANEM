@@ -1,7 +1,5 @@
 package com.javalovers.core.withdrawal.service;
 
-import com.javalovers.common.specification.SearchCriteria;
-import com.javalovers.common.specification.SpecificationHelper;
 import com.javalovers.core.inventory.service.InventoryService;
 import com.javalovers.core.inventory.domain.enums.TransactionType;
 import com.javalovers.core.appuser.domain.entity.AppUser;
@@ -272,23 +270,21 @@ public class WithdrawalService {
         return withdrawalRepository.findAll(withdrawalSpecification, pageable);
     }
 
-    private Specification<Withdrawal> generateSpecification(WithdrawalFilterDTO withdrawalFilterDTO) {
-        SearchCriteria<Long> beneficiaryCriteria = SpecificationHelper.generateEqualsCriteria("beneficiary.id", withdrawalFilterDTO.beneficiaryId());
-        SearchCriteria<Long> attendantUserCriteria = SpecificationHelper.generateEqualsCriteria("attendantUserId.id", withdrawalFilterDTO.attendantUserId());
-        SearchCriteria<Date> withdrawalDateCriteria = SpecificationHelper.generateEqualsCriteria("withdrawalDate", withdrawalFilterDTO.withdrawalDate());
+    private Specification<Withdrawal> generateSpecification(WithdrawalFilterDTO filter) {
+        if (filter.startDate() != null && filter.endDate() != null && filter.startDate().after(filter.endDate())) {
+            throw new IllegalArgumentException("A data inicial não pode ser posterior à data final.");
+        }
 
-        Specification<Withdrawal> beneficiarySpecification = new WithdrawalSpecification(beneficiaryCriteria);
-        Specification<Withdrawal> attendantSpecification = new WithdrawalSpecification(attendantUserCriteria);
-        Specification<Withdrawal> withdrawalDateSpecification = new WithdrawalSpecification(withdrawalDateCriteria);
-        
-        // Filtro para excluir registros deletados (soft delete)
-        Specification<Withdrawal> notDeletedSpecification = (root, query, criteriaBuilder) -> 
-            criteriaBuilder.isNull(root.get("deletedAt"));
+        return (root, query, criteriaBuilder) -> {
+            query.distinct(true);
 
-        return Specification.where(beneficiarySpecification)
-                .and(attendantSpecification)
-                .and(withdrawalDateSpecification)
-                .and(notDeletedSpecification);
+            return Specification.where(WithdrawalSpecification.isNotDeleted())
+                    .and(WithdrawalSpecification.betweenDates(filter.startDate(), filter.endDate()))
+                    .and(WithdrawalSpecification.hasBeneficiaryName(filter.beneficiaryName()))
+                    .and(WithdrawalSpecification.hasAttendantName(filter.attendantName()))
+                    .and(WithdrawalSpecification.hasItemName(filter.itemName()))
+                    .toPredicate(root, query, criteriaBuilder);
+        };
     }
 
     public Page<WithdrawalDTO> generateWithdrawalDTOPage(Page<Withdrawal> withdrawalPage) {

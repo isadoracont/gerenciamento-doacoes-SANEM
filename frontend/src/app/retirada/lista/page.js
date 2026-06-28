@@ -1,12 +1,12 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import MenuBar from "../../components/menubar/menubar";
 import Navigation from "../../components/navegation/navegation";
 import { useRouter } from "next/navigation";
 import styles from "./lista.module.css";
 import apiService from "../../../services/api";
 import { useNotification } from "../../../components/notifications/NotificationProvider";
-import { FaPlus, FaEdit, FaTrash, FaMinus } from "react-icons/fa";
+import { FaPlus, FaTrash, FaMinus, FaChevronDown, FaTimes } from "react-icons/fa";
 import ConfirmationModal from "../../../components/confirmation/ConfirmationModal";
 import { mapBeneficiaryFromBackend, mapItemFromBackend } from "../../../services/dataMapper";
 import authService from "../../../services/authService";
@@ -14,9 +14,12 @@ import authService from "../../../services/authService";
 export default function ListaRetiradasPage() {
   const router = useRouter();
   const { showNotification } = useNotification();
+  
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, message: "", title: "" });
+  
+  // Modais e estados de Adição
   const [showAddModal, setShowAddModal] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState([]);
   const [items, setItems] = useState([]);
@@ -31,9 +34,134 @@ export default function ListaRetiradasPage() {
 
   const isAdmin = currentUser?.role?.toUpperCase() === "ADMINISTRATOR";
 
+  // ==========================================
+  // LÓGICA DE FILTROS APRIMORADA
+  // ==========================================
+  
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    beneficiaryName: "",
+    attendantName: "",
+    itemName: ""
+  });
+
+  const [inputValues, setInputValues] = useState({
+    beneficiaryName: "",
+    attendantName: "",
+    itemName: ""
+  });
+
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const [filterOptions, setFilterOptions] = useState({
+    beneficiaries: [],
+    attendants: [],
+    items: []
+  });
+
+  const dropdownRef = useRef(null);
+
+  // Detecta cliques fora dos dropdowns para fechá-los
   useEffect(() => {
-    loadWithdrawals();
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdown(null);
+        setInputValues({
+          beneficiaryName: filters.beneficiaryName,
+          attendantName: filters.attendantName,
+          itemName: filters.itemName
+        });
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [filters]);
+
+  // Carrega as opções dos selects de filtro ao montar a tela
+  useEffect(() => {
+    const fetchFilterOptions = async () => {
+      try {
+        const [bData, uData, iData] = await Promise.all([
+          apiService.getBeneficiaries(),
+          apiService.getUsers(),
+          apiService.getItems()
+        ]);
+        setFilterOptions({
+          beneficiaries: (bData || []).map(b => b.fullName || b.nomeCompleto).filter(Boolean),
+          attendants: (uData || []).map(u => u.name || u.nomeCompleto).filter(Boolean),
+          items: (iData || []).map(i => i.description || i.nome).filter(Boolean)
+        });
+      } catch (err) {
+        console.error("Erro ao carregar opções de filtro", err);
+      }
+    };
+    fetchFilterOptions();
   }, []);
+
+  // Carrega os dados reais sempre que o objeto de filtros oficiais mudar
+  useEffect(() => {
+    loadWithdrawals(filters);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.startDate, filters.endDate, filters.beneficiaryName, filters.attendantName, filters.itemName]);
+
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleTextTyping = (field, value) => {
+    setInputValues(prev => ({ ...prev, [field]: value }));
+    setActiveDropdown(field);
+    if (value.trim() === "") {
+      setFilters(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleOptionSelect = (field, value) => {
+    setInputValues(prev => ({ ...prev, [field]: value }));
+    setFilters(prev => ({ ...prev, [field]: value }));
+    setActiveDropdown(null);
+  };
+
+  const clearFilters = () => {
+    setFilters({ startDate: "", endDate: "", beneficiaryName: "", attendantName: "", itemName: "" });
+    setInputValues({ beneficiaryName: "", attendantName: "", itemName: "" });
+  };
+
+  const loadWithdrawals = async (activeFilters = {}) => {
+    if (activeFilters.startDate && activeFilters.endDate) {
+      if (new Date(activeFilters.startDate) > new Date(activeFilters.endDate)) {
+        showNotification("A data inicial não pode ser maior que a data final.", "warning");
+        setWithdrawals([]);
+        return;
+      }
+    }
+
+    try {
+      setLoading(true);
+      const cleanFilters = Object.fromEntries(
+        Object.entries(activeFilters).filter(([_, v]) => v !== "")
+      );
+
+      const data = await apiService.getWithdrawals(cleanFilters);
+      const withdrawalsArray = Array.isArray(data) ? data : [];
+      
+      const sortedWithdrawals = withdrawalsArray.sort((a, b) => {
+        const dateA = a.withdrawalDate ? new Date(a.withdrawalDate).getTime() : 0;
+        const dateB = b.withdrawalDate ? new Date(b.withdrawalDate).getTime() : 0;
+        return dateB - dateA; 
+      });
+      
+      setWithdrawals(sortedWithdrawals);
+    } catch (err) {
+      console.error("Erro ao carregar retiradas:", err);
+      showNotification(err.message || "Erro ao carregar retiradas", "error");
+      setWithdrawals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  // ==========================================
 
   useEffect(() => {
     if (showAddModal) {
@@ -48,29 +176,6 @@ export default function ListaRetiradasPage() {
     }
   }, [selectedBeneficiary]);
 
-  const loadWithdrawals = async () => {
-    try {
-      setLoading(true);
-      const data = await apiService.getWithdrawals();
-      const withdrawalsArray = Array.isArray(data) ? data : [];
-
-      // Ordenar do mais recente para o mais antigo por data de retirada
-      const sortedWithdrawals = withdrawalsArray.sort((a, b) => {
-        const dateA = a.withdrawalDate ? new Date(a.withdrawalDate).getTime() : 0;
-        const dateB = b.withdrawalDate ? new Date(b.withdrawalDate).getTime() : 0;
-        return dateB - dateA; // Ordem decrescente (mais recente primeiro)
-      });
-
-      setWithdrawals(sortedWithdrawals);
-    } catch (err) {
-      console.error("Erro ao carregar retiradas:", err);
-      showNotification(err.message || "Erro ao carregar retiradas", "error");
-      setWithdrawals([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDelete = (id) => {
     setConfirmModal({
       isOpen: true,
@@ -78,7 +183,7 @@ export default function ListaRetiradasPage() {
         try {
           await apiService.deleteWithdrawal(id);
           showNotification("Retirada excluída com sucesso!", "success");
-          loadWithdrawals();
+          loadWithdrawals(filters); // Atualiza mantendo os filtros
         } catch (err) {
           console.error("Erro ao excluir retirada:", err);
           showNotification(err.message || "Erro ao excluir retirada", "error");
@@ -97,7 +202,6 @@ export default function ListaRetiradasPage() {
       const mapped = (data || []).map(mapBeneficiaryFromBackend);
       setBeneficiaries(mapped);
     } catch (err) {
-      console.error("Erro ao carregar beneficiários:", err);
       showNotification("Erro ao carregar beneficiários", "error");
     }
   };
@@ -108,7 +212,6 @@ export default function ListaRetiradasPage() {
       const mapped = (data || []).map(mapItemFromBackend).filter(item => item.quantidade > 0);
       setItems(mapped);
     } catch (err) {
-      console.error("Erro ao carregar itens:", err);
       showNotification("Erro ao carregar itens", "error");
     }
   };
@@ -118,7 +221,6 @@ export default function ListaRetiradasPage() {
       const info = await apiService.getWithdrawalLimitInfo(beneficiaryId);
       setLimitInfo(info);
     } catch (err) {
-      console.error("Erro ao carregar informações de limite:", err);
       setLimitInfo(null);
     }
   };
@@ -234,14 +336,11 @@ export default function ListaRetiradasPage() {
     const totalItems = selectedItems.reduce((sum, si) => sum + si.quantity, 0);
     if (limitInfo && limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems) {
       const confirmMessage = `O total de itens selecionados (${totalItems}) excede o limite restante (${limitInfo.remainingItems}). Deseja continuar mesmo assim?`;
-      if (!window.confirm(confirmMessage)) {
-        return;
-      }
+      if (!window.confirm(confirmMessage)) return;
     }
 
     try {
       setSubmitting(true);
-
       const withdrawalData = {
         withdrawalDate: new Date().toISOString(),
         beneficiaryId: selectedBeneficiary.id,
@@ -260,9 +359,8 @@ export default function ListaRetiradasPage() {
       setSearchBeneficiary("");
       setSearchItem("");
       setLimitInfo(null);
-      loadWithdrawals();
+      loadWithdrawals(filters);
     } catch (err) {
-      console.error("Erro ao registrar retirada:", err);
       showNotification(err.message || "Erro ao registrar retirada", "error");
     } finally {
       setSubmitting(false);
@@ -283,7 +381,6 @@ export default function ListaRetiradasPage() {
 
       return `${day}/${month}/${year}, ${hours}:${minutes}`;
     } catch (e) {
-      console.error('Erro ao formatar data:', e);
       return 'N/A';
     }
   };
@@ -296,17 +393,182 @@ export default function ListaRetiradasPage() {
       <Navigation />
       <div className={styles.contentWrapper}>
         <div className={styles.listContainer}>
-          <h1 className={styles.titulo}>Retiradas Registradas</h1>
-          <div className={styles.decoracao}></div>
-          <div className={styles.actionsHeader}>
-            <button
-              className={styles.addButton}
-              onClick={handleAdd}
-              title="Registrar Nova Retirada"
-            >
+          
+          <div className={styles.pageHeader}>
+            <h1 className={styles.titulo}>Retiradas Registradas</h1>
+            <button className={styles.addButton} onClick={handleAdd} title="Registrar Nova Retirada">
               <FaPlus />
             </button>
           </div>
+          <div className={styles.decoracao}></div>
+
+          {/* BARRA DE FILTROS ENVOLVIDA PELA REF */}
+          <div className={styles.filtersContainer} ref={dropdownRef}>
+            <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
+              <input 
+                type="date" 
+                name="startDate"
+                value={filters.startDate}
+                onChange={handleDateChange}
+                title="Data Inicial"
+              />
+            </div>
+            <span className={styles.dateSeparator}>até</span>
+            <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
+              <input 
+                type="date" 
+                name="endDate"
+                value={filters.endDate}
+                onChange={handleDateChange}
+                title="Data Final"
+              />
+            </div>
+
+            {/* SELECT COM PESQUISA: Beneficiário */}
+            <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
+              <input 
+                type="text"
+                placeholder="Filtrar por Beneficiário..." 
+                value={inputValues.beneficiaryName}
+                onChange={(e) => handleTextTyping("beneficiaryName", e.target.value)}
+                onClick={() => setActiveDropdown("beneficiaryName")}
+                autoComplete="off"
+                style={{ paddingRight: "60px" }}
+              />
+              {inputValues.beneficiaryName && (
+                <FaTimes 
+                  className={styles.clearIcon}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOptionSelect("beneficiaryName", "");
+                  }}
+                  title="Limpar Beneficiário"
+                />
+              )}
+              <FaChevronDown 
+                className={styles.selectIcon} 
+                style={{ transform: activeDropdown === "beneficiaryName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              />
+              {activeDropdown === "beneficiaryName" && (
+                <div className={styles.filterDropdown}>
+                  {filterOptions.beneficiaries
+                    .filter(opt => opt.toLowerCase().includes(inputValues.beneficiaryName.toLowerCase()))
+                    .map((opt, idx) => (
+                      <div 
+                        key={idx} 
+                        className={styles.filterDropdownItem}
+                        onClick={() => handleOptionSelect("beneficiaryName", opt)}
+                      >
+                        {opt}
+                      </div>
+                    ))}
+                  {filterOptions.beneficiaries.filter(opt => opt.toLowerCase().includes(inputValues.beneficiaryName.toLowerCase())).length === 0 && (
+                    <div className={styles.filterDropdownItemEmpty}>Nenhum beneficiário encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* SELECT COM PESQUISA: Atendente */}
+            <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
+              <input 
+                type="text"
+                placeholder="Filtrar por Atendente..." 
+                value={inputValues.attendantName}
+                onChange={(e) => handleTextTyping("attendantName", e.target.value)}
+                onClick={() => setActiveDropdown("attendantName")}
+                autoComplete="off"
+                style={{ paddingRight: "60px" }}
+              />
+              {inputValues.attendantName && (
+                <FaTimes 
+                  className={styles.clearIcon}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOptionSelect("attendantName", "");
+                  }}
+                  title="Limpar Atendente"
+                />
+              )}
+              <FaChevronDown 
+                className={styles.selectIcon} 
+                style={{ transform: activeDropdown === "attendantName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              />
+              {activeDropdown === "attendantName" && (
+                <div className={styles.filterDropdown}>
+                  {filterOptions.attendants
+                    .filter(opt => opt.toLowerCase().includes(inputValues.attendantName.toLowerCase()))
+                    .map((opt, idx) => (
+                      <div 
+                        key={idx} 
+                        className={styles.filterDropdownItem}
+                        onClick={() => handleOptionSelect("attendantName", opt)}
+                      >
+                        {opt}
+                      </div>
+                    ))}
+                  {filterOptions.attendants.filter(opt => opt.toLowerCase().includes(inputValues.attendantName.toLowerCase())).length === 0 && (
+                    <div className={styles.filterDropdownItemEmpty}>Nenhum atendente encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* SELECT COM PESQUISA: Item */}
+            <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
+              <input 
+                type="text"
+                placeholder="Filtrar por Item..." 
+                value={inputValues.itemName}
+                onChange={(e) => handleTextTyping("itemName", e.target.value)}
+                onClick={() => setActiveDropdown("itemName")}
+                autoComplete="off"
+                style={{ paddingRight: "60px" }}
+              />
+              {inputValues.itemName && (
+                <FaTimes 
+                  className={styles.clearIcon}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOptionSelect("itemName", "");
+                  }}
+                  title="Limpar Item"
+                />
+              )}
+              <FaChevronDown 
+                className={styles.selectIcon} 
+                style={{ transform: activeDropdown === "itemName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              />
+              {activeDropdown === "itemName" && (
+                <div className={styles.filterDropdown}>
+                  {filterOptions.items
+                    .filter(opt => opt.toLowerCase().includes(inputValues.itemName.toLowerCase()))
+                    .map((opt, idx) => (
+                      <div 
+                        key={idx} 
+                        className={styles.filterDropdownItem}
+                        onClick={() => handleOptionSelect("itemName", opt)}
+                      >
+                        {opt}
+                      </div>
+                    ))}
+                  {filterOptions.items.filter(opt => opt.toLowerCase().includes(inputValues.itemName.toLowerCase())).length === 0 && (
+                    <div className={styles.filterDropdownItemEmpty}>Nenhum item encontrado</div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <button 
+              className={`${styles.cancelButton} ${styles.clearFilterButton}`} 
+              onClick={clearFilters}
+              title="Limpar Filtros"
+            >
+              Limpar
+            </button>
+          </div>
+          {/* FIM BARRA DE FILTROS */}
+
           <div className={styles.tableWrapper}>
             <table className={styles.beneficiariosTable}>
               <thead>
@@ -326,7 +588,7 @@ export default function ListaRetiradasPage() {
                 ) : withdrawals.length === 0 ? (
                   <tr>
                     <td colSpan={5} className={styles.noDataMessage}>
-                      Nenhuma retirada registrada ainda.
+                      Nenhuma retirada encontrada.
                     </td>
                   </tr>
                 ) : (
@@ -367,7 +629,7 @@ export default function ListaRetiradasPage() {
           </div>
         </div>
       </div>
-      {/* Modal de Registrar Retirada */}
+
       {showAddModal && (
         <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -539,5 +801,3 @@ export default function ListaRetiradasPage() {
     </div>
   );
 }
-
-
