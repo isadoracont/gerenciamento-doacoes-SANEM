@@ -9,10 +9,12 @@ import com.javalovers.core.appuser.domain.entity.AppUser;
 import com.javalovers.core.appuser.service.AppUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -42,10 +44,18 @@ public class DonationController {
     }
 
     @GetMapping({"", "/"})
-    public ResponseEntity<List<DonationDTO>> findAll() {
-        List<DonationDTO> allDonations = donationService.findAll();
+    public ResponseEntity<List<DonationDTO>> findAll(
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+            @RequestParam(required = false) String donorName,
+            @RequestParam(required = false) String attendantName,
+            @RequestParam(required = false) String itemName
+    ) {
+        List<DonationDTO> donations = donationService.findAllFiltered(
+                startDate, endDate, donorName, attendantName, itemName
+        );
 
-        return ResponseEntity.ok(allDonations);
+        return ResponseEntity.ok(donations);
     }
 
     @DeleteMapping("/{id}")

@@ -13,24 +13,36 @@
 .formContainer {
     background: #fff;
     border-radius: 12px;
-    padding: 30px;
+    padding: 10px 30px 30px 30px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     max-width: 1200px;
     margin: 0 auto;
 }
 
+.pageHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px; 
+}
+
 .titulo {
+    text-align: left;
     font-size: 2rem;
-    font-weight: 700;
-    color: #1976d2;
-    margin-bottom: 10px;
+    color: var(--color-text, #333);
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 .decoracao {
-    height: 4px;
-    background: linear-gradient(90deg, #1976d2, #4caf50);
-    border-radius: 2px;
-    margin-bottom: 30px;
+    width: 80px;
+    height: 6px;
+    background: var(--color-primary, #1976d2);
+    margin: 0 0 25px 0;
+    border-radius: 3px;
 }
 
 .section {
