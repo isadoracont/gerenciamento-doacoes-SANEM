@@ -26,7 +26,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- =====================================================================
 -- 4. INSERÇÃO DE USUÁRIOS
--- IMPORTANTE: O hash atual equivale a '{name}@2026', ex.: Isadora@2026
+-- IMPORTANTE: O hash de senha atual equivale a '{name}@2026', ex.: Isadora@2026
 -- =====================================================================
 INSERT INTO app_user (name, login, email, password_hash, status, profile_id) VALUES
 ('Isadora', 'isadora', 'isadora@gmail.com', '$2a$12$zM3oy9SL3q3hUZZomXMASOm1lRn.sSC85NxNnYDi.U0j2c0x3444u', 'ACTIVE', 1),
@@ -38,32 +38,31 @@ INSERT INTO app_user (name, login, email, password_hash, status, profile_id) VAL
 -- 5. INSERÇÃO DE DOADORES
 -- =====================================================================
 INSERT INTO donor (name, cpf_cnpj, contact, email) VALUES
-('Supermercado Bom Preço', '12345678000194', '1140028922', 'contato@bompreco.com.br'),
-('Atacadão da Família', '98765432000198', '1133334444', 'doacoes@atacadaofamilia.com'),
-('Maria Rita Costa', '12312312387', '11988887777', 'mariarita.costa@gmail.com'),
-('João Pedro Almeida', '32132132174', '11955554444', 'jpalmeida_doador@hotmail.com'),
-('Igreja Esperança', '45678912000155', '1130302020', 'comunidade@igrejaesperanca.org'),
-('Farmácia Saúde', '77788899000183', '1132221111', 'gerencia@farmaciasaude.com'),
-('Carlos Eduardo Souza', '45645645600', '11977778888', 'cadu_souza@gmail.com'),
-('Confecções Silva', '11222333000181', '1144445555', 'contato@confeccoessilva.com.br'),
-('Ana Paula Mendes', '65465465409', '11966663333', 'aninha.mendes@yahoo.com'),
-('Clube Lions Local', '33444555000181', '1139998888', 'diretoria@lionslocal.org');
+('Supermercado Bom Preço', '62039518000196', '1140028922', 'contato@bompreco.com.br'),
+('Atacadão da Família', '18581892000127', '1133334444', 'doacoes@atacadaofamilia.com'),
+('Maria Rita Costa', '73020286050', '11988887777', 'mariarita.costa@gmail.com'),
+('João Pedro Almeida', '87805843066', '11955554444', 'jpalmeida_doador@hotmail.com'),
+('Igreja Esperança', '17168702000181', '1130302020', 'comunidade@igrejaesperanca.org'),
+('Farmácia Saúde', '10318838000181', '1132221111', 'gerencia@farmaciasaude.com'),
+('Carlos Eduardo Souza', '91956253050', '11977778888', 'cadu_souza@gmail.com'),
+('Confecções Silva', '56788492000186', '1144445555', 'contato@confeccoessilva.com.br'),
+('Ana Paula Mendes', '53850413004', '11966663333', 'aninha.mendes@yahoo.com'),
+('Clube Lions Local', '74076734000190', '1139998888', 'diretoria@lionslocal.org');
 
 -- =====================================================================
 -- 6. INSERÇÃO DE BENEFICIÁRIOS
--- Distribuindo aprovações entre Isadora (1), Victor (3) e Layssa (4)
 -- =====================================================================
 INSERT INTO beneficiary (full_name, cpf, phone, socioeconomic_data, beneficiary_status, approver_user_id, withdrawal_limit) VALUES
-('Marta Ferreira', '11122233396', '11911112222', 'Mãe solteira, desempregada', 'APPROVED', 3, 10),
-('José Roberto Dias', '44455566600', '11922223333', 'Idoso, recebe BPC', 'APPROVED', 1, 10),
-('Aline Rodrigues', '22233344405', '11933334444', 'Renda menor que 1 salário', 'APPROVED', 4, 10),
-('Fernando Castro', '55566677729', '11944445555', 'Acamado, esposa não trabalha', 'APPROVED', 3, 10),
-('Luciana Martins', '77788899941', '11955556666', 'Pagando aluguel, sem emprego', 'APPROVED', 1, 10),
-('Ricardo Gomes', '12345678902', '11966667777', 'Trabalhador informal', 'APPROVED', 4, 10),
-('Teresa Nunes', '98765432100', '11977778888', 'Cuida de netos, sem renda', 'APPROVED', 3, 10),
-('Gabriel Peixoto', '33344455508', '11988889999', 'Estudante em ocupação', 'PENDING', NULL, 10),
-('Camila Vieira', '66655544491', '11999990000', 'Ajuda emergencial', 'PENDING', NULL, 10),
-('Roberto Antunes', '88877766603', '11900001111', 'Renda superior ao limite', 'REJECTED', 3, 10);
+('Marta Ferreira', '87326891010', '11911112222', 'Mãe solteira, desempregada', 'APPROVED', 3, 10),
+('José Roberto Dias', '54676836082', '11922223333', 'Idoso, recebe BPC', 'APPROVED', 1, 10),
+('Aline Rodrigues', '22997902096', '11933334444', 'Renda menor que 1 salário', 'APPROVED', 4, 10),
+('Fernando Castro', '53229628080', '11944445555', 'Acamado, esposa não trabalha', 'APPROVED', 3, 10),
+('Luciana Martins', '06588315007', '11955556666', 'Pagando aluguel, sem emprego', 'APPROVED', 1, 10),
+('Ricardo Gomes', '37288830004', '11966667777', 'Trabalhador informal', 'APPROVED', 4, 10),
+('Teresa Nunes', '95160215069', '11977778888', 'Cuida de netos, sem renda', 'APPROVED', 3, 10),
+('Gabriel Peixoto', '44829234008', '11988889999', 'Estudante em ocupação', 'PENDING', NULL, 10),
+('Camila Vieira', '95844334078', '11999990000', 'Ajuda emergencial', 'PENDING', NULL, 10),
+('Roberto Antunes', '58872974097', '11900001111', 'Renda superior ao limite', 'REJECTED', 3, 10);
 
 -- =====================================================================
 -- 7. INSERÇÃO DE ITENS
