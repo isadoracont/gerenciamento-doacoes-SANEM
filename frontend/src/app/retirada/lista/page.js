@@ -346,6 +346,34 @@ export default function ListaRetiradasPage() {
       if (!window.confirm(confirmMessage)) return;
     }
 
+    if (isLimitBeingChecked) {
+      showNotification(
+        "Aguarde a verificação do limite mensal do beneficiário.", "error"
+      );
+      return;
+    }
+
+    if (beneficiaryHasNoLimit) {
+      showNotification(
+        "Este beneficiário não possui limite mensal configurado. Não é possível registrar a retirada.", "error"
+      );
+      return;
+    }
+
+    if (failedToLoadLimit) {
+      showNotification(
+        "Não foi possível verificar o limite mensal. Tente novamente.", "error"
+      );
+      return;
+    }
+
+    if (exceedsRemainingLimit) {
+      showNotification(
+        `Não é possível registrar a retirada. Foram selecionados ${totalItems} item(ns), mas o beneficiário possui apenas ${limitInfo?.remainingItems ?? 0} item(ns) restantes no limite mensal.`, "error"
+      );
+      return;
+    }
+
     try {
       setSubmitting(true);
       const withdrawalData = {
