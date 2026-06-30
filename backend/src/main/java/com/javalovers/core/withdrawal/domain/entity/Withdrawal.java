@@ -3,6 +3,7 @@ package com.javalovers.core.withdrawal.domain.entity;
 import com.javalovers.common.entity.SoftDeletable;
 import com.javalovers.core.appuser.domain.entity.AppUser;
 import com.javalovers.core.beneficiary.domain.entity.Beneficiary;
+import com.javalovers.core.itemwithdrawn.domain.entity.ItemWithdrawn;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "withdrawal")
@@ -43,4 +45,6 @@ public class Withdrawal implements SoftDeletable {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @OneToMany(mappedBy = "withdrawal", fetch = FetchType.LAZY)
+    private List<ItemWithdrawn> items;
 }

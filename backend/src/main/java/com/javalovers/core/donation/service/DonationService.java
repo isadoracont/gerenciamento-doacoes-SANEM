@@ -9,6 +9,7 @@ import com.javalovers.core.donation.domain.entity.Donation;
 import com.javalovers.core.donation.mapper.DonationCreateMapper;
 import com.javalovers.core.donation.mapper.DonationDTOMapper;
 import com.javalovers.core.donation.repository.DonationRepository;
+import com.javalovers.core.donation.specification.DonationSpecification;
 import com.javalovers.core.donor.domain.entity.Donor;
 import com.javalovers.core.appuser.domain.entity.AppUser;
 import com.javalovers.core.item.domain.entity.Item;
@@ -17,8 +18,10 @@ import com.javalovers.core.itemdonated.domain.entity.ItemDonated;
 import com.javalovers.core.itemdonated.repository.ItemDonatedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.domain.Specification; 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,6 +109,32 @@ public class DonationService {
     public List<DonationDTO> findAll() {
         return donationRepository.findAll()
                 .stream()
+                .map(donationDTOMapper::convert)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<DonationDTO> findAllFiltered(
+            Date startDate, 
+            Date endDate, 
+            String donorName, 
+            String attendantName, 
+            String itemName
+    ) {
+        if (startDate != null && endDate != null && startDate.after(endDate)) {
+            throw new IllegalArgumentException("A data inicial não pode ser posterior à data final.");
+        }
+
+        Specification<Donation> spec = Specification.where(DonationSpecification.isNotDeleted())
+                .and(DonationSpecification.betweenDates(startDate, endDate))
+                .and(DonationSpecification.hasDonorName(donorName))
+                .and(DonationSpecification.hasAttendantName(attendantName))
+                .and(DonationSpecification.hasItemName(itemName));
+
+        List<Donation> donations = donationRepository.findAll(spec);
+        
+        return donations.stream()
+                .distinct()
                 .map(donationDTOMapper::convert)
                 .collect(Collectors.toList());
     }

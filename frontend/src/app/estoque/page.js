@@ -19,6 +19,8 @@ export default function EstoquePage() {
   const [novoProduto, setNovoProduto] = useState({ nome: '', quantidade: '', tagCode: '' });
   const [editProduto, setEditProduto] = useState({ nome: '', quantidade: '', tagCode: '' });
   const [editingItem, setEditingItem] = useState(null);
+  const [filters, setFilters] = useState({ searchTerm: '', minQuantity: '', maxQuantity: '' });
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const router = useRouter();
 
   const {
@@ -36,11 +38,24 @@ export default function EstoquePage() {
     : [];
 
   useEffect(() => {
-    loadDataRaw().catch(err => {
-      console.error("Erro ao carregar itens:", err);
+    const handler = setTimeout(() => {
+      setDebouncedSearch(filters.searchTerm);
+    }, 500); 
+
+    return () => clearTimeout(handler);
+  }, [filters.searchTerm]);
+
+  useEffect(() => {
+    const activeFilters = {};
+    if (debouncedSearch) activeFilters.searchTerm = debouncedSearch;
+    if (filters.minQuantity) activeFilters.minQuantity = filters.minQuantity;
+    if (filters.maxQuantity) activeFilters.maxQuantity = filters.maxQuantity;
+
+    loadDataRaw(activeFilters).catch(err => {
+      console.error("Erro ao carregar itens filtrados:", err);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Executar apenas na montagem do componente
+  }, [debouncedSearch, filters.minQuantity, filters.maxQuantity]);
 
   async function handleAddProduto(e) {
     e.preventDefault();
@@ -197,10 +212,8 @@ export default function EstoquePage() {
       <Navigation />
       <div className={styles.contentWrapper}>
         <div className={styles.listContainer}>
-          <h1 className={styles.titulo}>Controle de Estoque</h1>
-          <div className={styles.decoracao}></div>
-
-          <div className={styles.actionsHeader}>
+          <div className={styles.pageHeader}>
+            <h1 className={styles.titulo}>Controle de Estoque</h1>
             <button
               className={styles.addButton}
               onClick={() => setShowAddModal(true)}
@@ -209,7 +222,47 @@ export default function EstoquePage() {
               <FaPlus />
             </button>
           </div>
-          
+
+          <div className={styles.decoracao}></div>
+
+          <div className={styles.filtersContainer}>
+            <div className={`${styles.formGroup} ${styles.filterGroupText}`}>
+              <input 
+                type="text" 
+                placeholder="Filtrar por nome ou código..." 
+                value={filters.searchTerm}
+                onChange={(e) => setFilters(prev => ({ ...prev, searchTerm: e.target.value }))}
+              />
+            </div>
+            <div className={`${styles.formGroup} ${styles.filterGroupNumber}`}>
+              <input 
+                type="number" 
+                placeholder="Qtd Min." 
+                min="0"
+                value={filters.minQuantity}
+                onChange={(e) => setFilters(prev => ({ ...prev, minQuantity: e.target.value }))}
+              />
+            </div>
+            <div className={`${styles.formGroup} ${styles.filterGroupNumber}`}>
+              <input 
+                type="number" 
+                placeholder="Qtd Máx." 
+                min="0"
+                value={filters.maxQuantity}
+                onChange={(e) => setFilters(prev => ({ ...prev, maxQuantity: e.target.value }))}
+              />
+            </div>
+            <button 
+              className={`${styles.cancelButton} ${styles.clearFilterButton}`} 
+              onClick={() => {
+                setFilters({ searchTerm: '', minQuantity: '', maxQuantity: '' });
+                setDebouncedSearch('');
+              }}
+            >
+              Limpar
+            </button>
+          </div>
+
           <div className={styles.tableWrapper}>
             <table className={styles.beneficiariosTable}>
               <thead>

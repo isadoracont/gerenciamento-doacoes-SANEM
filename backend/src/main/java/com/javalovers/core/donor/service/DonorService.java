@@ -69,18 +69,20 @@ public class DonorService {
         SearchCriteria<String> nameCriteria = SpecificationHelper.generateInnerLikeCriteria("name", donorFilterDTO.name());
         SearchCriteria<String> cpfCnpjCriteria = SpecificationHelper.generateInnerLikeCriteria("cpfCnpj", donorFilterDTO.cpfCnpj());
         SearchCriteria<String> contactCriteria = SpecificationHelper.generateInnerLikeCriteria("contact", donorFilterDTO.contact());
+        SearchCriteria<String> emailCriteria = SpecificationHelper.generateInnerLikeCriteria("email", donorFilterDTO.email());
 
         Specification<Donor> nameSpecification = new DonorSpecification(nameCriteria);
         Specification<Donor> cpfCnpjSpecification = new DonorSpecification(cpfCnpjCriteria);
         Specification<Donor> contactSpecification = new DonorSpecification(contactCriteria);
+        Specification<Donor> emailSpecification = new DonorSpecification(emailCriteria);
         
-        // Filtro para excluir registros deletados (soft delete)
         Specification<Donor> notDeletedSpecification = (root, query, criteriaBuilder) -> 
             criteriaBuilder.isNull(root.get("deletedAt"));
 
         return Specification.where(nameSpecification)
                 .and(cpfCnpjSpecification)
                 .and(contactSpecification)
+                .and(emailSpecification)
                 .and(notDeletedSpecification);
     }
 

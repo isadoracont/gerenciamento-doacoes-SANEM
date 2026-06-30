@@ -120,7 +120,7 @@ public class BeneficiaryController {
         if (beneficiary == null)
             return ResponseEntity.notFound().build();
 
-        WithdrawalFilterDTO filter = new WithdrawalFilterDTO(null, id, null);
+        WithdrawalFilterDTO filter = new WithdrawalFilterDTO(null, null, null, null, null, id, null);
         List<WithdrawalDTO> withdrawals = withdrawalService.generateWithdrawalDTOList(
                 withdrawalService.list(filter));
 

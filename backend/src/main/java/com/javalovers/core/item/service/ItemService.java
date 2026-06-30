@@ -1,7 +1,4 @@
 package com.javalovers.core.item.service;
-
-import com.javalovers.common.specification.SearchCriteria;
-import com.javalovers.common.specification.SpecificationHelper;
 import com.javalovers.core.inventory.service.InventoryService;
 import com.javalovers.core.inventory.domain.enums.TransactionType;
 import com.javalovers.core.item.domain.dto.request.ItemFilterDTO;
@@ -13,7 +10,6 @@ import com.javalovers.core.item.mapper.ItemCreateMapper;
 import com.javalovers.core.item.mapper.ItemDTOMapper;
 import com.javalovers.core.item.mapper.ItemUpdateMapper;
 import com.javalovers.core.item.repository.ItemRepository;
-import com.javalovers.core.item.specification.ItemSpecification;
 import com.javalovers.core.item.util.QRCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -128,23 +124,34 @@ public class ItemService {
     }
 
     private Specification<Item> generateSpecification(ItemFilterDTO itemFilterDTO) {
-        SearchCriteria<String> descriptionCriteria = SpecificationHelper.generateInnerLikeCriteria("description",
-                itemFilterDTO.description());
-        SearchCriteria<Long> stockQuantityCriteria = SpecificationHelper.generateEqualsCriteria("stockQuantity",
-                itemFilterDTO.stockQuantity());
-        SearchCriteria<String> tagCodeCriteria = SpecificationHelper.generateInnerLikeCriteria("tagCode",
-                itemFilterDTO.tagCode());
-
-        Specification<Item> descriptionSpecification = new ItemSpecification(descriptionCriteria);
-        Specification<Item> stockQuantitySpecification = new ItemSpecification(stockQuantityCriteria);
-        Specification<Item> tagCodeSpecification = new ItemSpecification(tagCodeCriteria);
-
         Specification<Item> notDeletedSpecification = (root, query, criteriaBuilder) -> 
             criteriaBuilder.isNull(root.get("deletedAt"));
+        Specification<Item> searchSpecification = (root, query, criteriaBuilder) -> {
+            if (itemFilterDTO.searchTerm() == null || itemFilterDTO.searchTerm().trim().isEmpty()) {
+                return criteriaBuilder.conjunction();
+            }
 
-        return Specification.where(descriptionSpecification)
-                .and(stockQuantitySpecification)
-                .and(tagCodeSpecification)
+            String pattern = "%" + itemFilterDTO.searchTerm().toLowerCase() + "%";
+            
+            return criteriaBuilder.or(
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern),
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("tagCode")), pattern)
+            );
+        };
+
+        Specification<Item> quantitySpecification = (root, query, criteriaBuilder) -> {
+            var predicates = criteriaBuilder.conjunction();
+            if (itemFilterDTO.minQuantity() != null) {
+                predicates = criteriaBuilder.and(predicates, criteriaBuilder.greaterThanOrEqualTo(root.get("stockQuantity"), itemFilterDTO.minQuantity()));
+            }
+            if (itemFilterDTO.maxQuantity() != null) {
+                predicates = criteriaBuilder.and(predicates, criteriaBuilder.lessThanOrEqualTo(root.get("stockQuantity"), itemFilterDTO.maxQuantity()));
+            }
+            return predicates;
+        };
+
+        return Specification.where(searchSpecification)
+                .and(quantitySpecification)
                 .and(notDeletedSpecification);
     }
 

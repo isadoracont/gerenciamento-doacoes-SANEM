@@ -150,7 +150,13 @@ public class BeneficiaryService {
         Specification<Beneficiary> phoneSpecification = new BeneficiarySpecification(phoneCriteria);
         Specification<Beneficiary> socioeconomicDataSpecification = new BeneficiarySpecification(socioeconomicDataCriteria);
         
-        // Filtro para excluir registros deletados (soft delete)
+        Specification<Beneficiary> statusSpecification = (root, query, criteriaBuilder) -> {
+            if (beneficiaryFilterDTO.beneficiaryStatus() == null) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.equal(root.get("beneficiaryStatus"), beneficiaryFilterDTO.beneficiaryStatus());
+        };
+
         Specification<Beneficiary> notDeletedSpecification = (root, query, criteriaBuilder) -> 
             criteriaBuilder.isNull(root.get("deletedAt"));
 
@@ -158,6 +164,7 @@ public class BeneficiaryService {
                 .and(cpfSpecification)
                 .and(phoneSpecification)
                 .and(socioeconomicDataSpecification)
+                .and(statusSpecification) 
                 .and(notDeletedSpecification);
     }
 
