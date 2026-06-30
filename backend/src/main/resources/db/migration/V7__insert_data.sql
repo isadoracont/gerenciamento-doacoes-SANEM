@@ -38,32 +38,32 @@ INSERT INTO app_user (name, login, email, password_hash, status, profile_id) VAL
 -- 5. INSERÇÃO DE DOADORES
 -- =====================================================================
 INSERT INTO donor (name, cpf_cnpj, contact, email) VALUES
-('Supermercado Bom Preço', '12345678000199', '1140028922', 'contato@bompreco.com.br'),
-('Atacadão da Família', '98765432000111', '1133334444', 'doacoes@atacadaofamilia.com'),
-('Maria Rita Costa', '11122233344', '11988887777', 'mariarita.costa@gmail.com'),
-('João Pedro Almeida', '55566677788', '11955554444', 'jpalmeida_doador@hotmail.com'),
-('Igreja Esperança', '45678912000133', '1130302020', 'comunidade@igrejaesperanca.org'),
-('Farmácia Saúde', '77788899000122', '1132221111', 'gerencia@farmaciasaude.com'),
-('Carlos Eduardo Souza', '99988877766', '11977778888', 'cadu_souza@gmail.com'),
-('Confecções Silva', '11222333000144', '1144445555', 'contato@confeccoessilva.com.br'),
-('Ana Paula Mendes', '22233344455', '11966663333', 'aninha.mendes@yahoo.com'),
-('Clube Lions Local', '33444555000166', '1139998888', 'diretoria@lionslocal.org');
+('Supermercado Bom Preço', '12345678000194', '1140028922', 'contato@bompreco.com.br'),
+('Atacadão da Família', '98765432000198', '1133334444', 'doacoes@atacadaofamilia.com'),
+('Maria Rita Costa', '12312312387', '11988887777', 'mariarita.costa@gmail.com'),
+('João Pedro Almeida', '32132132174', '11955554444', 'jpalmeida_doador@hotmail.com'),
+('Igreja Esperança', '45678912000155', '1130302020', 'comunidade@igrejaesperanca.org'),
+('Farmácia Saúde', '77788899000183', '1132221111', 'gerencia@farmaciasaude.com'),
+('Carlos Eduardo Souza', '45645645600', '11977778888', 'cadu_souza@gmail.com'),
+('Confecções Silva', '11222333000181', '1144445555', 'contato@confeccoessilva.com.br'),
+('Ana Paula Mendes', '65465465409', '11966663333', 'aninha.mendes@yahoo.com'),
+('Clube Lions Local', '33444555000181', '1139998888', 'diretoria@lionslocal.org');
 
 -- =====================================================================
 -- 6. INSERÇÃO DE BENEFICIÁRIOS
 -- Distribuindo aprovações entre Isadora (1), Victor (3) e Layssa (4)
 -- =====================================================================
 INSERT INTO beneficiary (full_name, cpf, phone, socioeconomic_data, beneficiary_status, approver_user_id, withdrawal_limit) VALUES
-('Marta Ferreira', '10120230344', '11911112222', 'Mãe solteira, desempregada', 'APPROVED', 3, 10),
-('José Roberto Dias', '20230340455', '11922223333', 'Idoso, recebe BPC', 'APPROVED', 1, 10),
-('Aline Rodrigues', '30340450566', '11933334444', 'Renda menor que 1 salário', 'APPROVED', 4, 10),
-('Fernando Castro', '40450560677', '11944445555', 'Acamado, esposa não trabalha', 'APPROVED', 3, 10),
-('Luciana Martins', '50560670788', '11955556666', 'Pagando aluguel, sem emprego', 'APPROVED', 1, 10),
-('Ricardo Gomes', '60670780899', '11966667777', 'Trabalhador informal', 'APPROVED', 4, 10),
-('Teresa Nunes', '70780890900', '11977778888', 'Cuida de netos, sem renda', 'APPROVED', 3, 10),
-('Gabriel Peixoto', '80890910111', '11988889999', 'Estudante em ocupação', 'PENDING', NULL, 10),
-('Camila Vieira', '90910120222', '11999990000', 'Ajuda emergencial', 'PENDING', NULL, 10),
-('Roberto Antunes', '01020230333', '11900001111', 'Renda superior ao limite', 'REJECTED', 3, 10);
+('Marta Ferreira', '11122233396', '11911112222', 'Mãe solteira, desempregada', 'APPROVED', 3, 10),
+('José Roberto Dias', '44455566600', '11922223333', 'Idoso, recebe BPC', 'APPROVED', 1, 10),
+('Aline Rodrigues', '22233344405', '11933334444', 'Renda menor que 1 salário', 'APPROVED', 4, 10),
+('Fernando Castro', '55566677729', '11944445555', 'Acamado, esposa não trabalha', 'APPROVED', 3, 10),
+('Luciana Martins', '77788899941', '11955556666', 'Pagando aluguel, sem emprego', 'APPROVED', 1, 10),
+('Ricardo Gomes', '12345678902', '11966667777', 'Trabalhador informal', 'APPROVED', 4, 10),
+('Teresa Nunes', '98765432100', '11977778888', 'Cuida de netos, sem renda', 'APPROVED', 3, 10),
+('Gabriel Peixoto', '33344455508', '11988889999', 'Estudante em ocupação', 'PENDING', NULL, 10),
+('Camila Vieira', '66655544491', '11999990000', 'Ajuda emergencial', 'PENDING', NULL, 10),
+('Roberto Antunes', '88877766603', '11900001111', 'Renda superior ao limite', 'REJECTED', 3, 10);
 
 -- =====================================================================
 -- 7. INSERÇÃO DE ITENS
