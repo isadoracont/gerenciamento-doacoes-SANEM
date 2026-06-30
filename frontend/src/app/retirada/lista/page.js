@@ -413,6 +413,11 @@ export default function ListaRetiradasPage() {
     selectedBeneficiary !== null &&
     limitInfoStatus === "error";
 
+  const exceedsRemainingLimit =
+    limitInfoStatus === "loaded" &&
+    limitInfo?.remainingItems !== null &&
+    Number(limitInfo.remainingItems) < totalItems;
+
   return (
     <div className={styles.containerGeral}>
       <MenuBar />
@@ -725,7 +730,7 @@ export default function ListaRetiradasPage() {
                         </span>
                         {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
                           <div style={{ marginTop: '5px', color: '#dc3545', fontWeight: '600' }}>
-                            Atenção: O total de itens selecionados ({totalItems}) excede o limite restante ({limitInfo.remainingItems})
+                            Limite mensal atingido. Não é possível registrar esta retirada com a quantidade de itens selecionada.
                           </div>
                         )}
                       </div>
@@ -827,7 +832,7 @@ export default function ListaRetiradasPage() {
                   type="submit"
                   className={styles.submitButton}
                   disabled={submitting || !selectedBeneficiary || selectedItems.length === 0 ||
-                    isLimitBeingChecked || beneficiaryHasNoLimit || failedToLoadLimit}>
+                    isLimitBeingChecked || beneficiaryHasNoLimit || failedToLoadLimit || exceedsRemainingLimit}>
                   {submitting ? "Registrando..." : "Registrar Retirada"}
                 </button>
               </div>
