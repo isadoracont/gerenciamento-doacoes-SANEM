@@ -14,11 +14,11 @@ import authService from "../../../services/authService";
 export default function ListaRetiradasPage() {
   const router = useRouter();
   const { showNotification } = useNotification();
-  
+
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, message: "", title: "" });
-  
+
   // Modais e estados de Adição
   const [showAddModal, setShowAddModal] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState([]);
@@ -29,6 +29,7 @@ export default function ListaRetiradasPage() {
   const [searchItem, setSearchItem] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [limitInfo, setLimitInfo] = useState(null);
+  const [limitInfoStatus, setLimitInfoStatus] = useState("idle");
 
   const currentUser = authService.getUser();
 
@@ -37,7 +38,7 @@ export default function ListaRetiradasPage() {
   // ==========================================
   // LÓGICA DE FILTROS APRIMORADA
   // ==========================================
-  
+
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
@@ -145,13 +146,13 @@ export default function ListaRetiradasPage() {
 
       const data = await apiService.getWithdrawals(cleanFilters);
       const withdrawalsArray = Array.isArray(data) ? data : [];
-      
+
       const sortedWithdrawals = withdrawalsArray.sort((a, b) => {
         const dateA = a.withdrawalDate ? new Date(a.withdrawalDate).getTime() : 0;
         const dateB = b.withdrawalDate ? new Date(b.withdrawalDate).getTime() : 0;
-        return dateB - dateA; 
+        return dateB - dateA;
       });
-      
+
       setWithdrawals(sortedWithdrawals);
     } catch (err) {
       console.error("Erro ao carregar retiradas:", err);
@@ -218,10 +219,15 @@ export default function ListaRetiradasPage() {
 
   const loadLimitInfo = async (beneficiaryId) => {
     try {
+      setLimitInfo(null);
+      setLimitInfoStatus("loading");
       const info = await apiService.getWithdrawalLimitInfo(beneficiaryId);
       setLimitInfo(info);
+      setLimitInfoStatus("loaded");
     } catch (err) {
+      console.error("Erro ao carregar informações de limite:", err);
       setLimitInfo(null);
+      setLimitInfoStatus("error");
     }
   };
 
@@ -231,6 +237,7 @@ export default function ListaRetiradasPage() {
     setSearchBeneficiary("");
     setSearchItem("");
     setLimitInfo(null);
+    setLimitInfoStatus("idle");
     setShowAddModal(true);
   };
 
@@ -387,13 +394,32 @@ export default function ListaRetiradasPage() {
 
   const totalItems = selectedItems.reduce((sum, si) => sum + si.quantity, 0);
 
+  const hasMonthlyLimitConfigured =
+    limitInfo?.monthlyLimit !== null &&
+    limitInfo?.monthlyLimit !== undefined &&
+    limitInfo?.monthlyLimit !== "";
+
+  const monthlyLimit = Number(limitInfo?.monthlyLimit ?? 0);
+
+  const beneficiaryHasNoLimit =
+    limitInfoStatus === "loaded" &&
+    (!hasMonthlyLimitConfigured || monthlyLimit <= 0);
+
+  const isLimitBeingChecked =
+    selectedBeneficiary !== null &&
+    limitInfoStatus === "loading";
+
+  const failedToLoadLimit =
+    selectedBeneficiary !== null &&
+    limitInfoStatus === "error";
+
   return (
     <div className={styles.containerGeral}>
       <MenuBar />
       <Navigation />
       <div className={styles.contentWrapper}>
         <div className={styles.listContainer}>
-          
+
           <div className={styles.pageHeader}>
             <h1 className={styles.titulo}>Retiradas Registradas</h1>
             <button className={styles.addButton} onClick={handleAdd} title="Registrar Nova Retirada">
@@ -405,8 +431,8 @@ export default function ListaRetiradasPage() {
           {/* BARRA DE FILTROS ENVOLVIDA PELA REF */}
           <div className={styles.filtersContainer} ref={dropdownRef}>
             <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="startDate"
                 value={filters.startDate}
                 onChange={handleDateChange}
@@ -415,8 +441,8 @@ export default function ListaRetiradasPage() {
             </div>
             <span className={styles.dateSeparator}>até</span>
             <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="endDate"
                 value={filters.endDate}
                 onChange={handleDateChange}
@@ -426,9 +452,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Beneficiário */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Beneficiário..." 
+                placeholder="Filtrar por Beneficiário..."
                 value={inputValues.beneficiaryName}
                 onChange={(e) => handleTextTyping("beneficiaryName", e.target.value)}
                 onClick={() => setActiveDropdown("beneficiaryName")}
@@ -436,7 +462,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.beneficiaryName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -445,17 +471,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Beneficiário"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "beneficiaryName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "beneficiaryName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "beneficiaryName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.beneficiaries
                     .filter(opt => opt.toLowerCase().includes(inputValues.beneficiaryName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("beneficiaryName", opt)}
                       >
@@ -471,9 +497,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Atendente */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Atendente..." 
+                placeholder="Filtrar por Atendente..."
                 value={inputValues.attendantName}
                 onChange={(e) => handleTextTyping("attendantName", e.target.value)}
                 onClick={() => setActiveDropdown("attendantName")}
@@ -481,7 +507,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.attendantName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -490,17 +516,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Atendente"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "attendantName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "attendantName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "attendantName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.attendants
                     .filter(opt => opt.toLowerCase().includes(inputValues.attendantName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("attendantName", opt)}
                       >
@@ -516,9 +542,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Item */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Item..." 
+                placeholder="Filtrar por Item..."
                 value={inputValues.itemName}
                 onChange={(e) => handleTextTyping("itemName", e.target.value)}
                 onClick={() => setActiveDropdown("itemName")}
@@ -526,7 +552,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.itemName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -535,17 +561,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Item"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "itemName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "itemName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "itemName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.items
                     .filter(opt => opt.toLowerCase().includes(inputValues.itemName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("itemName", opt)}
                       >
@@ -559,8 +585,8 @@ export default function ListaRetiradasPage() {
               )}
             </div>
 
-            <button 
-              className={`${styles.cancelButton} ${styles.clearFilterButton}`} 
+            <button
+              className={`${styles.cancelButton} ${styles.clearFilterButton}`}
               onClick={clearFilters}
               title="Limpar Filtros"
             >
