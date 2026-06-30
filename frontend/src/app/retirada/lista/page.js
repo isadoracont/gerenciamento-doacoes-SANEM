@@ -14,11 +14,11 @@ import authService from "../../../services/authService";
 export default function ListaRetiradasPage() {
   const router = useRouter();
   const { showNotification } = useNotification();
-  
+
   const [withdrawals, setWithdrawals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, message: "", title: "" });
-  
+
   // Modais e estados de Adição
   const [showAddModal, setShowAddModal] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState([]);
@@ -29,6 +29,7 @@ export default function ListaRetiradasPage() {
   const [searchItem, setSearchItem] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [limitInfo, setLimitInfo] = useState(null);
+  const [limitInfoStatus, setLimitInfoStatus] = useState("idle");
 
   const currentUser = authService.getUser();
 
@@ -37,7 +38,7 @@ export default function ListaRetiradasPage() {
   // ==========================================
   // LÓGICA DE FILTROS APRIMORADA
   // ==========================================
-  
+
   const [filters, setFilters] = useState({
     startDate: "",
     endDate: "",
@@ -145,13 +146,13 @@ export default function ListaRetiradasPage() {
 
       const data = await apiService.getWithdrawals(cleanFilters);
       const withdrawalsArray = Array.isArray(data) ? data : [];
-      
+
       const sortedWithdrawals = withdrawalsArray.sort((a, b) => {
         const dateA = a.withdrawalDate ? new Date(a.withdrawalDate).getTime() : 0;
         const dateB = b.withdrawalDate ? new Date(b.withdrawalDate).getTime() : 0;
-        return dateB - dateA; 
+        return dateB - dateA;
       });
-      
+
       setWithdrawals(sortedWithdrawals);
     } catch (err) {
       console.error("Erro ao carregar retiradas:", err);
@@ -218,10 +219,15 @@ export default function ListaRetiradasPage() {
 
   const loadLimitInfo = async (beneficiaryId) => {
     try {
+      setLimitInfo(null);
+      setLimitInfoStatus("loading");
       const info = await apiService.getWithdrawalLimitInfo(beneficiaryId);
       setLimitInfo(info);
+      setLimitInfoStatus("loaded");
     } catch (err) {
+      console.error("Erro ao carregar informações de limite:", err);
       setLimitInfo(null);
+      setLimitInfoStatus("error");
     }
   };
 
@@ -231,6 +237,7 @@ export default function ListaRetiradasPage() {
     setSearchBeneficiary("");
     setSearchItem("");
     setLimitInfo(null);
+    setLimitInfoStatus("idle");
     setShowAddModal(true);
   };
 
@@ -316,6 +323,12 @@ export default function ListaRetiradasPage() {
       return;
     }
 
+    if (beneficiaryIsNotApproved) {
+      showNotification(
+        "Este beneficiário ainda não foi validado. Não é possível registrar a retirada.", "error");
+      return;
+    }
+
     if (selectedItems.length === 0) {
       showNotification("Adicione pelo menos um item", "error");
       return;
@@ -337,6 +350,34 @@ export default function ListaRetiradasPage() {
     if (limitInfo && limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems) {
       const confirmMessage = `O total de itens selecionados (${totalItems}) excede o limite restante (${limitInfo.remainingItems}). Deseja continuar mesmo assim?`;
       if (!window.confirm(confirmMessage)) return;
+    }
+
+    if (isLimitBeingChecked) {
+      showNotification(
+        "Aguarde a verificação do limite mensal do beneficiário.", "error"
+      );
+      return;
+    }
+
+    if (beneficiaryHasNoLimit) {
+      showNotification(
+        "Este beneficiário não possui limite mensal configurado. Não é possível registrar a retirada.", "error"
+      );
+      return;
+    }
+
+    if (failedToLoadLimit) {
+      showNotification(
+        "Não foi possível verificar o limite mensal. Tente novamente.", "error"
+      );
+      return;
+    }
+
+    if (exceedsRemainingLimit) {
+      showNotification(
+        `Não é possível registrar a retirada. Foram selecionados ${totalItems} item(ns), mas o beneficiário possui apenas ${limitInfo?.remainingItems ?? 0} item(ns) restantes no limite mensal.`, "error"
+      );
+      return;
     }
 
     try {
@@ -387,13 +428,45 @@ export default function ListaRetiradasPage() {
 
   const totalItems = selectedItems.reduce((sum, si) => sum + si.quantity, 0);
 
+  const hasMonthlyLimitConfigured =
+    limitInfo?.monthlyLimit !== null &&
+    limitInfo?.monthlyLimit !== undefined &&
+    limitInfo?.monthlyLimit !== "";
+
+  const monthlyLimit = Number(limitInfo?.monthlyLimit ?? 0);
+
+  const beneficiaryHasNoLimit =
+    limitInfoStatus === "loaded" &&
+    (!hasMonthlyLimitConfigured || monthlyLimit <= 0);
+
+  const isLimitBeingChecked =
+    selectedBeneficiary !== null &&
+    limitInfoStatus === "loading";
+
+  const failedToLoadLimit =
+    selectedBeneficiary !== null &&
+    limitInfoStatus === "error";
+
+  const exceedsRemainingLimit =
+    limitInfoStatus === "loaded" &&
+    limitInfo?.remainingItems !== null &&
+    Number(limitInfo.remainingItems) < totalItems;
+
+  const beneficiaryIsApproved =
+    String(selectedBeneficiary?.status || "")
+      .trim()
+      .toUpperCase() === "APPROVED";
+
+  const beneficiaryIsNotApproved =
+    selectedBeneficiary !== null && !beneficiaryIsApproved;
+
   return (
     <div className={styles.containerGeral}>
       <MenuBar />
       <Navigation />
       <div className={styles.contentWrapper}>
         <div className={styles.listContainer}>
-          
+
           <div className={styles.pageHeader}>
             <h1 className={styles.titulo}>Retiradas Registradas</h1>
             <button className={styles.addButton} onClick={handleAdd} title="Registrar Nova Retirada">
@@ -405,8 +478,8 @@ export default function ListaRetiradasPage() {
           {/* BARRA DE FILTROS ENVOLVIDA PELA REF */}
           <div className={styles.filtersContainer} ref={dropdownRef}>
             <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="startDate"
                 value={filters.startDate}
                 onChange={handleDateChange}
@@ -415,8 +488,8 @@ export default function ListaRetiradasPage() {
             </div>
             <span className={styles.dateSeparator}>até</span>
             <div className={`${styles.formGroup} ${styles.filterGroupDate}`}>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="endDate"
                 value={filters.endDate}
                 onChange={handleDateChange}
@@ -426,9 +499,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Beneficiário */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Beneficiário..." 
+                placeholder="Filtrar por Beneficiário..."
                 value={inputValues.beneficiaryName}
                 onChange={(e) => handleTextTyping("beneficiaryName", e.target.value)}
                 onClick={() => setActiveDropdown("beneficiaryName")}
@@ -436,7 +509,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.beneficiaryName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -445,17 +518,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Beneficiário"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "beneficiaryName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "beneficiaryName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "beneficiaryName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.beneficiaries
                     .filter(opt => opt.toLowerCase().includes(inputValues.beneficiaryName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("beneficiaryName", opt)}
                       >
@@ -471,9 +544,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Atendente */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Atendente..." 
+                placeholder="Filtrar por Atendente..."
                 value={inputValues.attendantName}
                 onChange={(e) => handleTextTyping("attendantName", e.target.value)}
                 onClick={() => setActiveDropdown("attendantName")}
@@ -481,7 +554,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.attendantName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -490,17 +563,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Atendente"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "attendantName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "attendantName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "attendantName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.attendants
                     .filter(opt => opt.toLowerCase().includes(inputValues.attendantName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("attendantName", opt)}
                       >
@@ -516,9 +589,9 @@ export default function ListaRetiradasPage() {
 
             {/* SELECT COM PESQUISA: Item */}
             <div className={`${styles.formGroup} ${styles.filterGroupText}`} style={{ position: "relative" }}>
-              <input 
+              <input
                 type="text"
-                placeholder="Filtrar por Item..." 
+                placeholder="Filtrar por Item..."
                 value={inputValues.itemName}
                 onChange={(e) => handleTextTyping("itemName", e.target.value)}
                 onClick={() => setActiveDropdown("itemName")}
@@ -526,7 +599,7 @@ export default function ListaRetiradasPage() {
                 style={{ paddingRight: "60px" }}
               />
               {inputValues.itemName && (
-                <FaTimes 
+                <FaTimes
                   className={styles.clearIcon}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -535,17 +608,17 @@ export default function ListaRetiradasPage() {
                   title="Limpar Item"
                 />
               )}
-              <FaChevronDown 
-                className={styles.selectIcon} 
-                style={{ transform: activeDropdown === "itemName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }} 
+              <FaChevronDown
+                className={styles.selectIcon}
+                style={{ transform: activeDropdown === "itemName" ? "translateY(-50%) rotate(180deg)" : "translateY(-50%)" }}
               />
               {activeDropdown === "itemName" && (
                 <div className={styles.filterDropdown}>
                   {filterOptions.items
                     .filter(opt => opt.toLowerCase().includes(inputValues.itemName.toLowerCase()))
                     .map((opt, idx) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className={styles.filterDropdownItem}
                         onClick={() => handleOptionSelect("itemName", opt)}
                       >
@@ -559,8 +632,8 @@ export default function ListaRetiradasPage() {
               )}
             </div>
 
-            <button 
-              className={`${styles.cancelButton} ${styles.clearFilterButton}`} 
+            <button
+              className={`${styles.cancelButton} ${styles.clearFilterButton}`}
               onClick={clearFilters}
               title="Limpar Filtros"
             >
@@ -669,10 +742,37 @@ export default function ListaRetiradasPage() {
                 {selectedBeneficiary && (
                   <div className={styles.selectedInfo}>
                     <div><strong>Beneficiário selecionado:</strong> {selectedBeneficiary.nomeCompleto}</div>
+                    {beneficiaryIsNotApproved && (
+                      <div
+                        style={{
+                          marginTop: '8px', color: '#dc3545', fontWeight: '600', fontSize: '0.9rem'
+                        }}>
+                        Este beneficiário ainda não foi validado. Não é possível registrar uma retirada.
+                      </div>
+                    )}
                     {limitInfo && (
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
                         <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
+                        {isLimitBeingChecked && (
+                          <div style={{ marginTop: '8px', color: '#856404', fontWeight: '600' }}>
+                            Verificando o limite mensal do beneficiário...
+                          </div>
+                        )}
+
+                        {beneficiaryHasNoLimit && (
+                          <div style={{ marginTop: '8px', color: '#dc3545', fontWeight: '600' }}>
+                            Este beneficiário não possui um limite mensal configurado.
+                            Não é possível registrar uma retirada.
+                          </div>
+                        )}
+
+                        {failedToLoadLimit && (
+                          <div style={{ marginTop: '8px', color: '#dc3545', fontWeight: '600' }}>
+                            Não foi possível verificar o limite mensal deste beneficiário.
+                            Tente novamente antes de registrar a retirada.
+                          </div>
+                        )}
                         <span title={!isAdmin ? "Apenas administradores podem zerar o limite mensal" : ""} style={{ display: 'inline-block', marginTop: '5px' }}>
                           <button type="button" onClick={handleResetLimit} disabled={!isAdmin || submitting} className={styles.submitButton}>
                             Zerar Limite Mensal
@@ -680,7 +780,7 @@ export default function ListaRetiradasPage() {
                         </span>
                         {limitInfo.remainingItems !== null && limitInfo.remainingItems < totalItems && (
                           <div style={{ marginTop: '5px', color: '#dc3545', fontWeight: '600' }}>
-                            Atenção: O total de itens selecionados ({totalItems}) excede o limite restante ({limitInfo.remainingItems})
+                            Limite mensal atingido. Não é possível registrar esta retirada com a quantidade de itens selecionada.
                           </div>
                         )}
                       </div>
@@ -781,15 +881,16 @@ export default function ListaRetiradasPage() {
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0}
-                >
+                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0 || isLimitBeingChecked
+                    || beneficiaryHasNoLimit || failedToLoadLimit || exceedsRemainingLimit || beneficiaryIsNotApproved}>
                   {submitting ? "Registrando..." : "Registrar Retirada"}
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
+        </div >
+      )
+      }
 
       <ConfirmationModal
         isOpen={confirmModal.isOpen}
@@ -798,6 +899,6 @@ export default function ListaRetiradasPage() {
         message={confirmModal.message}
         title={confirmModal.title}
       />
-    </div>
+    </div >
   );
 }
