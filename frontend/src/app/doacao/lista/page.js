@@ -351,6 +351,8 @@ export default function ListaDoacoesPage() {
         }
     }
 
+    const totalItems = selectedItems.reduce((sum, si) => sum + si.quantity, 0)
+
     return (
         <div className={styles.containerGeral}>
             <MenuBar />
