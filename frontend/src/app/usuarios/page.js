@@ -204,26 +204,40 @@ export default function UsuariosPage() {
 
   const validateForm = () => {
     const errors = {};
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
     if (!formData.nomeCompleto.trim()) errors.nomeCompleto = "Nome é obrigatório";
     if (!formData.email.trim()) errors.email = "Email é obrigatório";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = "Email inválido";
     if (!formData.login.trim()) errors.login = "Login é obrigatório";
-    if (!formData.senha.trim()) errors.senha = "Senha é obrigatória";
-    else if (formData.senha.length < 8) errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
+
+    if (!formData.senha.trim()) {
+      errors.senha = "Senha é obrigatória";
+    } else if (!passwordRegex.test(formData.senha)) {
+      errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
+    }
+
     if (!formData.perfilId) errors.perfilId = "Perfil é obrigatório";
     return errors;
   };
 
   const validateEditForm = () => {
     const errors = {};
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
     if (!editFormData.nomeCompleto.trim()) errors.nomeCompleto = "Nome é obrigatório";
     if (!editFormData.email.trim()) errors.email = "Email é obrigatório";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editFormData.email)) errors.email = "Email inválido";
     if (!editFormData.login.trim()) errors.login = "Login é obrigatório";
+
     if (changePassword) {
-      if (!editFormData.senha.trim()) errors.senha = "Senha é obrigatória";
-      else if (editFormData.senha.length < 8) errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
+      if (!editFormData.senha.trim()) {
+        errors.senha = "Senha é obrigatória";
+      } else if (!passwordRegex.test(editFormData.senha)) {
+        errors.senha = "A senha deve ter no mínimo 8 caracteres, uma letra maiúscula, uma minúscula, um número e um caractere especial";
+      }
     }
+
     if (!editFormData.perfilId) errors.perfilId = "Perfil é obrigatório";
     return errors;
   };
