@@ -699,6 +699,25 @@ export default function ListaRetiradasPage() {
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
                         <div><strong>Restante:</strong> {limitInfo.remainingItems || 0} itens</div>
+                        {isLimitBeingChecked && (
+                          <div style={{ marginTop: '8px', color: '#856404', fontWeight: '600' }}>
+                            Verificando o limite mensal do beneficiário...
+                          </div>
+                        )}
+
+                        {beneficiaryHasNoLimit && (
+                          <div style={{ marginTop: '8px', color: '#dc3545', fontWeight: '600' }}>
+                            Este beneficiário não possui um limite mensal configurado.
+                            Não é possível registrar uma retirada.
+                          </div>
+                        )}
+
+                        {failedToLoadLimit && (
+                          <div style={{ marginTop: '8px', color: '#dc3545', fontWeight: '600' }}>
+                            Não foi possível verificar o limite mensal deste beneficiário.
+                            Tente novamente antes de registrar a retirada.
+                          </div>
+                        )}
                         <span title={!isAdmin ? "Apenas administradores podem zerar o limite mensal" : ""} style={{ display: 'inline-block', marginTop: '5px' }}>
                           <button type="button" onClick={handleResetLimit} disabled={!isAdmin || submitting} className={styles.submitButton}>
                             Zerar Limite Mensal
@@ -807,15 +826,16 @@ export default function ListaRetiradasPage() {
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0}
-                >
+                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0 ||
+                    isLimitBeingChecked || beneficiaryHasNoLimit || failedToLoadLimit}>
                   {submitting ? "Registrando..." : "Registrar Retirada"}
                 </button>
               </div>
             </form>
           </div>
-        </div>
-      )}
+        </div >
+      )
+      }
 
       <ConfirmationModal
         isOpen={confirmModal.isOpen}
@@ -824,6 +844,6 @@ export default function ListaRetiradasPage() {
         message={confirmModal.message}
         title={confirmModal.title}
       />
-    </div>
+    </div >
   );
 }
