@@ -11,7 +11,7 @@ import { FaPlus, FaCheck, FaTimes, FaEdit, FaTrash, FaChevronDown } from "react-
 import authService from "../../../services/authService";
 import { useNotification } from "../../../components/notifications/NotificationProvider";
 import ConfirmationModal from "../../../components/confirmation/ConfirmationModal";
-import { validateCPF, validateEmail, validatePhone } from "../../../utils/validators";
+import { validateCPF, validatePhone } from "../../../utils/validators";
 import { maskCPF, maskPhone, unmask } from "../../../utils/masks";
 
 export default function ListaBeneficiarios() {
@@ -23,12 +23,12 @@ export default function ListaBeneficiarios() {
   // Estados para modais e formulários
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, action: null, message: "", title: "" });
   const [showAddModal, setShowAddModal] = useState(false);
-  const [formData, setFormData] = useState({ nomeCompleto: "", telefoneCelular: "", email: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
+  const [formData, setFormData] = useState({ nomeCompleto: "", telefoneCelular: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
   const [formErrors, setFormErrors] = useState({});
   const [fieldErrors, setFieldErrors] = useState({});
   
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editFormData, setEditFormData] = useState({ nomeCompleto: "", telefoneCelular: "", email: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
+  const [editFormData, setEditFormData] = useState({ nomeCompleto: "", telefoneCelular: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
   const [editFormErrors, setEditFormErrors] = useState({});
   const [editFieldErrors, setEditFieldErrors] = useState({});
   const [editingBeneficiary, setEditingBeneficiary] = useState(null);
@@ -147,7 +147,6 @@ export default function ListaBeneficiarios() {
       setEditFormData({
         nomeCompleto: mappedBeneficiary.nomeCompleto || "",
         telefoneCelular: telefoneMascarado,
-        email: mappedBeneficiary.email || "",
         cpfCrnm: cpfMascarado,
         nif: mappedBeneficiary.nif || "",
         withdrawalLimit: mappedBeneficiary.withdrawalLimit || ""
@@ -211,16 +210,14 @@ export default function ListaBeneficiarios() {
   };
 
   const handleAdd = () => {
-    setFormData({ nomeCompleto: "", telefoneCelular: "", email: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
+    setFormData({ nomeCompleto: "", telefoneCelular: "", cpfCrnm: "", nif: "", withdrawalLimit: "" });
     setFormErrors({}); setFieldErrors({});
     setShowAddModal(true);
   };
 
-  // Funções de Validação e Submit (Omitidas por questão de espaço, elas permanecem exatamente as mesmas do seu código original)
   const validateField = (name, value) => {
     let validation = { valid: true, message: "" };
     switch (name) {
-      case "email": validation = validateEmail(value); break;
       case "telefoneCelular": validation = validatePhone(value); break;
       case "cpfCrnm": if (value) validation = validateCPF(value); break;
       case "nif": if (value && !/^\d+$/.test(value.replace(/\D/g, ""))) validation = { valid: false, message: "NIF deve conter apenas números" }; break;
@@ -236,7 +233,7 @@ export default function ListaBeneficiarios() {
     if (name === "telefoneCelular") processedValue = maskPhone(value);
     else if (name === "cpfCrnm") processedValue = maskCPF(value);
     setFormData({ ...formData, [name]: processedValue });
-    if (["email", "telefoneCelular", "cpfCrnm", "nif"].includes(name) && (processedValue.length > 0 || fieldErrors[name] !== undefined)) {
+    if (["telefoneCelular", "cpfCrnm", "nif"].includes(name) && (processedValue.length > 0 || fieldErrors[name] !== undefined)) {
       validateField(name, processedValue);
     }
   };
@@ -246,8 +243,6 @@ export default function ListaBeneficiarios() {
   const validateForm = () => {
     const errors = {};
     if (!formData.nomeCompleto.trim()) errors.nomeCompleto = "Nome completo é obrigatório";
-    if (!formData.email.trim()) errors.email = "Email é obrigatório";
-    else if (!validateEmail(formData.email).valid) errors.email = validateEmail(formData.email).message;
     if (!formData.telefoneCelular.trim()) errors.telefoneCelular = "Telefone é obrigatório";
     else if (!validatePhone(formData.telefoneCelular).valid) errors.telefoneCelular = validatePhone(formData.telefoneCelular).message;
     const cpfCrnmLimpo = formData.cpfCrnm.replace(/\D/g, "");
@@ -284,7 +279,6 @@ export default function ListaBeneficiarios() {
   const validateEditField = (name, value) => {
     let validation = { valid: true, message: "" };
     switch (name) {
-      case "email": validation = validateEmail(value); break;
       case "telefoneCelular": validation = validatePhone(value); break;
       case "cpfCrnm": if (value) validation = validateCPF(value); break;
       case "nif": if (value && !/^\d+$/.test(value.replace(/\D/g, ""))) validation = { valid: false, message: "NIF deve conter apenas números" }; break;
@@ -300,7 +294,7 @@ export default function ListaBeneficiarios() {
     if (name === "telefoneCelular") processedValue = maskPhone(value);
     else if (name === "cpfCrnm") processedValue = maskCPF(value);
     setEditFormData({ ...editFormData, [name]: processedValue });
-    if (["email", "telefoneCelular", "cpfCrnm", "nif"].includes(name) && (processedValue.length > 0 || editFieldErrors[name] !== undefined)) {
+    if (["telefoneCelular", "cpfCrnm", "nif"].includes(name) && (processedValue.length > 0 || editFieldErrors[name] !== undefined)) {
       validateEditField(name, processedValue);
     }
   };
@@ -310,8 +304,6 @@ export default function ListaBeneficiarios() {
   const validateEditForm = () => {
     const errors = {};
     if (!editFormData.nomeCompleto.trim()) errors.nomeCompleto = "Nome completo é obrigatório";
-    if (!editFormData.email.trim()) errors.email = "Email é obrigatório";
-    else if (!validateEmail(editFormData.email).valid) errors.email = validateEmail(editFormData.email).message;
     if (!editFormData.telefoneCelular.trim()) errors.telefoneCelular = "Telefone é obrigatório";
     else if (!validatePhone(editFormData.telefoneCelular).valid) errors.telefoneCelular = validatePhone(editFormData.telefoneCelular).message;
     const cpfCrnmLimpo = editFormData.cpfCrnm.replace(/\D/g, "");
@@ -546,17 +538,12 @@ export default function ListaBeneficiarios() {
                 {formErrors.nomeCompleto && <span className={styles.errorText}>{formErrors.nomeCompleto}</span>}
               </div>
               <div className={styles.formGroup}>
-                <label>Email *</label>
-                <input type="email" name="email" value={formData.email} onChange={handleFieldChange} onBlur={handleFieldBlur} className={formErrors.email || fieldErrors.email ? styles.inputError : ''} />
-                {(formErrors.email || fieldErrors.email) && <span className={styles.errorText}>{formErrors.email || fieldErrors.email}</span>}
-              </div>
-              <div className={styles.formGroup}>
                 <label>Telefone *</label>
                 <input type="tel" name="telefoneCelular" value={formData.telefoneCelular} onChange={handleFieldChange} onBlur={handleFieldBlur} placeholder="(45) 9 9988-7766" maxLength={15} className={formErrors.telefoneCelular || fieldErrors.telefoneCelular ? styles.inputError : ''} />
                 {(formErrors.telefoneCelular || fieldErrors.telefoneCelular) && <span className={styles.errorText}>{formErrors.telefoneCelular || fieldErrors.telefoneCelular}</span>}
               </div>
               <div className={styles.formGroup}>
-                <label>CPF/CRNM</label>
+                <label>CPF/CRNM *</label>
                 <input type="text" name="cpfCrnm" value={formData.cpfCrnm} onChange={handleFieldChange} onBlur={handleFieldBlur} placeholder="000.000.000-00" maxLength={14} className={formErrors.cpfCrnm || fieldErrors.cpfCrnm ? styles.inputError : ''} />
                 {(formErrors.cpfCrnm || fieldErrors.cpfCrnm) && <span className={styles.errorText}>{formErrors.cpfCrnm || fieldErrors.cpfCrnm}</span>}
                 <small style={{ color: '#666', fontSize: '0.85rem', display: 'block', marginTop: '4px' }}>Preencha CPF/CRNM ou NIF (pelo menos um é obrigatório)</small>
@@ -592,17 +579,12 @@ export default function ListaBeneficiarios() {
                 {editFormErrors.nomeCompleto && <span className={styles.errorText}>{editFormErrors.nomeCompleto}</span>}
               </div>
               <div className={styles.formGroup}>
-                <label>Email *</label>
-                <input type="email" name="email" value={editFormData.email} onChange={handleEditFieldChange} onBlur={handleEditFieldBlur} className={editFormErrors.email || editFieldErrors.email ? styles.inputError : ''} />
-                {(editFormErrors.email || editFieldErrors.email) && <span className={styles.errorText}>{editFormErrors.email || editFieldErrors.email}</span>}
-              </div>
-              <div className={styles.formGroup}>
                 <label>Telefone *</label>
                 <input type="tel" name="telefoneCelular" value={editFormData.telefoneCelular} onChange={handleEditFieldChange} onBlur={handleEditFieldBlur} placeholder="(45) 9 9988-7766" maxLength={15} className={editFormErrors.telefoneCelular || editFieldErrors.telefoneCelular ? styles.inputError : ''} />
                 {(editFormErrors.telefoneCelular || editFieldErrors.telefoneCelular) && <span className={styles.errorText}>{editFormErrors.telefoneCelular || editFieldErrors.telefoneCelular}</span>}
               </div>
               <div className={styles.formGroup}>
-                <label>CPF/CRNM</label>
+                <label>CPF/CRNM *</label>
                 <input type="text" name="cpfCrnm" value={editFormData.cpfCrnm} onChange={handleEditFieldChange} onBlur={handleEditFieldBlur} placeholder="000.000.000-00" maxLength={14} className={editFormErrors.cpfCrnm || editFieldErrors.cpfCrnm ? styles.inputError : ''} />
                 {(editFormErrors.cpfCrnm || editFieldErrors.cpfCrnm) && <span className={styles.errorText}>{editFormErrors.cpfCrnm || editFieldErrors.cpfCrnm}</span>}
                 <small style={{ color: '#666', fontSize: '0.85rem', display: 'block', marginTop: '4px' }}>Preencha CPF/CRNM ou NIF (pelo menos um é obrigatório)</small>
