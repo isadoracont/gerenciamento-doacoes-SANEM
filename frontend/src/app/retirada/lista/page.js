@@ -323,6 +323,12 @@ export default function ListaRetiradasPage() {
       return;
     }
 
+    if (beneficiaryIsNotApproved) {
+      showNotification(
+        "Este beneficiário ainda não foi validado. Não é possível registrar a retirada.", "error");
+      return;
+    }
+
     if (selectedItems.length === 0) {
       showNotification("Adicione pelo menos um item", "error");
       return;
@@ -445,6 +451,14 @@ export default function ListaRetiradasPage() {
     limitInfoStatus === "loaded" &&
     limitInfo?.remainingItems !== null &&
     Number(limitInfo.remainingItems) < totalItems;
+
+  const beneficiaryIsApproved =
+    String(selectedBeneficiary?.status || "")
+      .trim()
+      .toUpperCase() === "APPROVED";
+
+  const beneficiaryIsNotApproved =
+    selectedBeneficiary !== null && !beneficiaryIsApproved;
 
   return (
     <div className={styles.containerGeral}>
@@ -728,6 +742,14 @@ export default function ListaRetiradasPage() {
                 {selectedBeneficiary && (
                   <div className={styles.selectedInfo}>
                     <div><strong>Beneficiário selecionado:</strong> {selectedBeneficiary.nomeCompleto}</div>
+                    {beneficiaryIsNotApproved && (
+                      <div
+                        style={{
+                          marginTop: '8px', color: '#dc3545', fontWeight: '600', fontSize: '0.9rem'
+                        }}>
+                        Este beneficiário ainda não foi validado. Não é possível registrar uma retirada.
+                      </div>
+                    )}
                     {limitInfo && (
                       <div style={{ marginTop: '10px', padding: '10px', background: '#f0f0f0', borderRadius: '5px', fontSize: '0.9rem' }}>
                         <div><strong>Limite mensal:</strong> {limitInfo.itemsWithdrawnThisMonth || 0}/{limitInfo.monthlyLimit || 'N/A'} itens retirados este mês</div>
@@ -859,8 +881,8 @@ export default function ListaRetiradasPage() {
                 <button
                   type="submit"
                   className={styles.submitButton}
-                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0 ||
-                    isLimitBeingChecked || beneficiaryHasNoLimit || failedToLoadLimit || exceedsRemainingLimit}>
+                  disabled={submitting || !selectedBeneficiary || selectedItems.length === 0 || isLimitBeingChecked
+                    || beneficiaryHasNoLimit || failedToLoadLimit || exceedsRemainingLimit || beneficiaryIsNotApproved}>
                   {submitting ? "Registrando..." : "Registrar Retirada"}
                 </button>
               </div>
