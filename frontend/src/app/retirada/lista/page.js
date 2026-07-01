@@ -400,6 +400,7 @@ export default function ListaRetiradasPage() {
       setSearchBeneficiary("");
       setSearchItem("");
       setLimitInfo(null);
+      setLimitInfoStatus("idle");
       loadWithdrawals(filters);
     } catch (err) {
       showNotification(err.message || "Erro ao registrar retirada", "error");
@@ -450,7 +451,7 @@ export default function ListaRetiradasPage() {
   const exceedsRemainingLimit =
     limitInfoStatus === "loaded" &&
     limitInfo?.remainingItems !== null &&
-    Number(limitInfo.remainingItems) < totalItems;
+    Number(limitInfo.remainingItems ?? 0) < totalItems;
 
   const beneficiaryIsApproved =
     String(selectedBeneficiary?.status || "")
